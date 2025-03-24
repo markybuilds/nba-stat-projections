@@ -1,0 +1,27 @@
+# Cursor Rules
+
+This file defines rules and settings for the Cursor IDE when working with this project.
+
+## Memory Bank
+
+The memory-bank/ directory contains critical project documentation that must be maintained.
+All task tracking should be done in memory-bank/tasks.md.
+All completed tasks should be archived in docs/archive/completed_tasks.md.
+
+## Adaptive Workflow Process
+
+Follow these workflows based on task complexity:
+
+### Level 1: Quick Bug Fix
+INITIALIZATION → IMPLEMENTATION → DOCUMENTATION
+
+### Level 2: Simple Enhancement
+INITIALIZATION → DOCUMENTATION → PLANNING → IMPLEMENTATION → REFLECTION → ARCHIVING
+
+### Level 3-4: Complex Features/Systems
+Full 6-step workflow with comprehensive documentation
+
+## Command Safety
+
+Execute commands ONE AT A TIME, never chained.
+Always verify directory structure exists before operating on files. 

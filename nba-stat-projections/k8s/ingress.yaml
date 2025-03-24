@@ -1,0 +1,35 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nba-projections-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  tls:
+  - hosts:
+    - nbastatprojections.com
+    - api.nbastatprojections.com
+    secretName: nba-tls-secret
+  rules:
+  - host: nbastatprojections.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nba-frontend-service
+            port:
+              number: 80
+  - host: api.nbastatprojections.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nba-backend-service
+            port:
+              number: 80 

@@ -1,0 +1,94 @@
+name: Backend CI/CD
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Install dependencies
+      run: |
+        cd backend
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Lint with flake8
+      run: |
+        cd backend
+        pip install flake8
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        
+    # Add tests here when available
+    # - name: Test with pytest
+    #   run: |
+    #     cd backend
+    #     pip install pytest
+    #     pytest
+        
+    - name: Build Docker image
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: |
+        cd backend
+        docker build -t nba-backend:latest .
+        
+    - name: Login to GitHub Container Registry
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Push to GitHub Container Registry
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: |
+        IMAGE_ID=ghcr.io/${{ github.repository_owner }}/nba-backend
+        
+        # Change all uppercase to lowercase
+        IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+        
+        # Strip git ref prefix from version
+        VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+        
+        # Use Docker
+        echo IMAGE_ID=$IMAGE_ID
+        echo VERSION=$VERSION
+        
+        docker tag nba-backend:latest $IMAGE_ID:$VERSION
+        docker tag nba-backend:latest $IMAGE_ID:latest
+        docker push $IMAGE_ID:$VERSION
+        docker push $IMAGE_ID:latest
+      
+  deploy:
+    needs: build-and-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Deploy to production
+      # This would be where you deploy to your hosting service
+      # Could be using SSH, a cloud provider's CLI, or a dedicated action
+      run: |
+        echo "Deploying backend to production"
+        # Replace with actual deployment commands
+        # For example:
+        # - Deploy to Azure App Service
+        # - Deploy to AWS ECS
+        # - Deploy to Google Cloud Run 

@@ -1,0 +1,97 @@
+name: Frontend CI/CD
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'frontend/**'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+        
+    - name: Install dependencies
+      run: |
+        cd frontend
+        npm ci
+        
+    - name: Lint
+      run: |
+        cd frontend
+        npm run lint
+        
+    # Add tests here when available
+    # - name: Run tests
+    #   run: |
+    #     cd frontend
+    #     npm test
+        
+    - name: Build Next.js application
+      run: |
+        cd frontend
+        npm run build
+        
+    - name: Build Docker image
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: |
+        cd frontend
+        docker build -t nba-frontend:latest .
+        
+    - name: Login to GitHub Container Registry
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Push to GitHub Container Registry
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: |
+        IMAGE_ID=ghcr.io/${{ github.repository_owner }}/nba-frontend
+        
+        # Change all uppercase to lowercase
+        IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+        
+        # Strip git ref prefix from version
+        VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+        
+        # Use Docker
+        echo IMAGE_ID=$IMAGE_ID
+        echo VERSION=$VERSION
+        
+        docker tag nba-frontend:latest $IMAGE_ID:$VERSION
+        docker tag nba-frontend:latest $IMAGE_ID:latest
+        docker push $IMAGE_ID:$VERSION
+        docker push $IMAGE_ID:latest
+      
+  deploy:
+    needs: build-and-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Deploy to production
+      # This would be where you deploy to your hosting service
+      run: |
+        echo "Deploying frontend to production"
+        # Replace with actual deployment commands
+        # For example:
+        # - Deploy to Vercel
+        # - Deploy to Netlify
+        # - Deploy to AWS Amplify 
