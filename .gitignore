@@ -94,4 +94,10 @@ Thumbs.db
 *.tmp
 
 # Jupyter Notebooks
-.ipynb_checkpoints 
+.ipynb_checkpoints
+
+# Cursor memory bank
+cursor-memory-bank/
+
+# Embedded repositories
+nba-stat-projections/frontend/ 
