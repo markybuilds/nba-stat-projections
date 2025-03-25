@@ -7,6 +7,8 @@
 - **Performance Optimization**: Improving application performance and implementing real-time updates.
 - **Real-time Data Updates**: Added WebSocket functionality to provide real-time projection updates to users. Both backend and frontend implementation are now complete.
 - **Data Automation**: Implemented scheduler service for automated data updates using APScheduler, created CLI tool for administration, and updated Kubernetes configuration.
+- **Monitoring and Alerting**: Added comprehensive monitoring with Prometheus metrics and an alerting system with multiple notification channels.
+- **Codebase Organization**: Reorganized the project structure to eliminate duplicate directories and ensure a clear, consistent structure.
 
 ## Recent Changes
 
@@ -47,6 +49,18 @@
 - Updated Kubernetes CronJob configuration to use the scheduler CLI.
 - Added health check endpoint for monitoring scheduler status.
 - Created service documentation for the scheduler.
+- Implemented Prometheus metrics integration for tracking API requests, database operations, scheduler jobs, and more.
+- Created metrics service for collecting and exposing application metrics.
+- Implemented alerts service with email and Slack notification capabilities.
+- Added proactive health checks for monitoring system components.
+- Created API endpoints for alert management.
+- Enhanced scheduler service with health checks and metrics tracking.
+- Identified and resolved duplicate project structures.
+- Consolidated code from nested directories into a single coherent structure.
+- Merged unique backend and frontend components to eliminate duplication.
+- Cleaned up unnecessary directories and updated .gitignore.
+- Verified all components function correctly after reorganization.
+- Documented the reorganization process for future reference.
 
 ## Implementation Notes
 
@@ -83,6 +97,16 @@
 - Created CLI tool for administrators to manage scheduled tasks.
 - Added health check endpoint for monitoring scheduler status.
 - Used Kubernetes CronJob for running the scheduler in production environment.
+- Implemented Prometheus metrics collection throughout the application.
+- Used the singleton pattern for metrics and alerts services.
+- Created a flexible alerts service with configurable notification channels.
+- Added proactive health checks to identify issues before they affect users.
+- Designed metrics middleware to track API request performance.
+- Implemented database query tracking for monitoring query performance.
+- Added circuit breakers to prevent alert storms.
+- Used a methodical approach to identify and merge duplicate code.
+- Preserved all functionality while eliminating duplication.
+- Updated configuration files to reflect the new project structure.
 
 ## Open Questions
 
@@ -98,6 +122,11 @@
 - How can we best implement WebSocket authentication for secure connections?
 - What metrics should we track to monitor scheduler health and job execution status?
 - What fallback mechanisms should we implement for failed data updates?
+- What alert thresholds should we set for different metrics?
+- How can we best visualize metrics data with Grafana?
+- What additional notification channels should we consider for critical alerts?
+- Should we implement PagerDuty or similar service for on-call alerting?
+- What is the optimal strategy for handling stale metrics in Prometheus?
 
 ## Next Steps
 
@@ -111,8 +140,12 @@
 - ✅ Setup deployment pipeline
 - ✅ Implement real-time data updates (backend and frontend complete)
 - ✅ Implement data import automation with scheduler
+- ✅ Add monitoring and alerting for system health
+- ✅ Reorganize codebase for clarity and consistency
 - ⏳ Add authentication for admin users
 - ⏳ Optimize performance for production
+- ⏳ Set up Grafana dashboards for metrics visualization
+- ⏳ Create alerting dashboard UI
 
 ## Active Tasks
 
@@ -120,8 +153,12 @@
 - ✅ Setting up client-side WebSocket connections
 - ✅ Creating notification system for projection updates
 - ✅ Implementing data import automation with scheduler
+- ✅ Adding monitoring and alerting capabilities
+- ✅ Reorganizing codebase to eliminate duplication
 - ⏳ Optimizing bundle size for production deployment
 - ⏳ Implementing user preferences for dashboard customization
 - ⏳ Refining Kubernetes configurations for different environments
 - ⏳ Creating a staging environment for testing deployments
-- ⏳ Adding automated database backups to the pipeline 
+- ⏳ Adding automated database backups to the pipeline
+- ⏳ Setting up Grafana dashboards for metrics visualization
+- ⏳ Creating alerting dashboard UI 

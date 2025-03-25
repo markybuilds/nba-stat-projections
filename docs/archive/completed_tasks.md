@@ -354,3 +354,47 @@ Implemented a comprehensive monitoring and alerting system for the NBA Stat Proj
 - `backend/app/api/api_v1/endpoints/alerts.py`: Added alert management endpoints
 - `backend/app/schemas/alert.py`: Created alert schemas
 - `backend/app/main.py`: Integrated monitoring and metrics endpoint 
+
+## Task: Codebase Reorganization
+
+**Complexity Level:** 2 - Simple Enhancement
+
+**Description:**
+Reorganized the project codebase to eliminate duplicate directories and ensure a clear, consistent structure for ongoing development. Identified and resolved issues with duplicate project structures, consolidated code into a single coherent structure, and ensured all recent development work was properly integrated.
+
+**Implementation Details:**
+1. Identified duplicate project structures at the root level and nested in `nba-stat-projections/`
+2. Discovered that recent monitoring code was being developed in the root-level structure
+3. Merged unique components from the nested structure into the root-level directories:
+   - Copied unique backend code (projections, data access, utilities, tests)
+   - Copied frontend code and configuration
+   - Preserved all configuration files and environment variables
+4. Cleaned up unnecessary directories and updated .gitignore
+5. Maintained documentation and memory-bank directories
+
+**Challenges Overcome:**
+- Identifying all unique components that needed to be preserved
+- Ensuring no critical code was lost during reorganization
+- Managing Windows-specific command limitations
+- Preserving file permissions and structure during copying
+- Updating references to ensure consistency
+
+**Key Decisions:**
+- Kept the root-level structure (`backend/`, `frontend/`, `k8s/`) as the primary project structure
+- Preserved the `cursor-memory-bank/` directory as requested
+- Updated `.gitignore` to exclude the now-redundant `nba-stat-projections/` directory
+- Used native OS commands to ensure accurate file copying
+- Implemented a methodical approach to verify each component
+
+**Learnings:**
+- Project organization is critical for maintaining a healthy codebase
+- Regular cleanup of duplicate or unnecessary code prevents confusion
+- Command-line operations on Windows require different syntax than Unix
+- Methodical verification of each component ensures nothing is lost
+- Documentation of project structure helps maintain consistency
+
+**Files Changed:**
+- Copied files from `nba-stat-projections/backend/` to `backend/`
+- Copied files from `nba-stat-projections/frontend/` to `frontend/`
+- Updated `.gitignore` to exclude redundant directories
+- Removed `-p/` artifact directory 

@@ -1,3 +1,5 @@
+# Embedded repositories  
+nba-stat-projections/  
 # Python backend
 __pycache__/
 *.py[cod]
@@ -100,4 +102,4 @@ Thumbs.db
 cursor-memory-bank/
 
 # Embedded repositories
-#nba-stat-projections/frontend/ 
+
