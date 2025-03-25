@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cpu-test
+  labels:
+    app: cpu-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cpu-test
+  template:
+    metadata:
+      labels:
+        app: cpu-test
+    spec:
+      containers:
+      - name: cpu-test
+        image: polinux/stress
+        resources:
+          requests:
+            cpu: "200m"
+            memory: "64Mi"
+          limits:
+            cpu: "500m"
+            memory: "128Mi"
+        command: ["/bin/sh"]
+        args:
+        - -c
+        - |
+          while true; do
+            # Run CPU stress test with random number of workers and duration
+            stress --cpu $(shuf -i 1-4 -n 1) --timeout $(shuf -i 20-60 -n 1)s
+            sleep $(shuf -i 5-15 -n 1)
+          done
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cpu-test-service
+spec:
+  selector:
+    app: cpu-test
+  ports:
+  - port: 80
+    targetPort: 80
+  type: ClusterIP 

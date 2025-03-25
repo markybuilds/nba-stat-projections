@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: error-test-endpoint
+  labels:
+    app: error-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: error-test
+  template:
+    metadata:
+      labels:
+        app: error-test
+    spec:
+      containers:
+      - name: error-test
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx/conf.d
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: error-test-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: error-test-config
+data:
+  default.conf: |
+    server {
+      listen 80;
+      location /error {
+        return 500;
+      }
+      location /health {
+        return 200 'healthy';
+      }
+    }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: error-test-service
+spec:
+  selector:
+    app: error-test
+  ports:
+  - port: 80
+    targetPort: 80 

@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: slow-test-endpoint
+  labels:
+    app: slow-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: slow-test
+  template:
+    metadata:
+      labels:
+        app: slow-test
+    spec:
+      containers:
+      - name: slow-test
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx/conf.d
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: slow-test-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: slow-test-config
+data:
+  default.conf: |
+    server {
+      listen 80;
+      location /slow {
+        limit_rate 1k;
+        limit_rate_after 1k;
+        proxy_read_timeout 2s;
+        proxy_send_timeout 2s;
+        content_by_lua_block {
+          ngx.sleep(1.5)
+          ngx.say("Slow response")
+        }
+      }
+      location /health {
+        return 200 'healthy';
+      }
+    }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: slow-test-service
+spec:
+  selector:
+    app: slow-test
+  ports:
+  - port: 80
+    targetPort: 80 
