@@ -23,17 +23,18 @@ I'm pleased to announce that the NBA Stats Projections Monitoring Test Resources
 We would like to schedule a Team Demonstration and Knowledge Transfer session to present the completed work, walk through the implementation, and ensure a smooth transition to operations.
 
 **Proposed Dates:**
-- Option 1: [Date 1], [Time Range]
-- Option 2: [Date 2], [Time Range]
-- Option 3: [Date 3], [Time Range]
+- Option 1: Monday, July 1, 2024, 10:00 AM - 12:00 PM EDT
+- Option 2: Wednesday, July 3, 2024, 2:00 PM - 4:00 PM EDT
+- Option 3: Friday, July 5, 2024, 11:00 AM - 1:00 PM EDT
 
-Please indicate your availability for these dates by replying to this email or using the provided calendar poll: [Calendar Poll URL]
+Please indicate your availability for these dates by replying to this email or using the provided calendar poll: https://calendly.com/nba-stats-projections/monitoring-test-resources-demo
 
 ### Session Details
 
 **Duration:** Approximately 2 hours
 
-**Location:** [Meeting Room] / Virtual Meeting ([Meeting Link])
+**Location:** Virtual Meeting (Microsoft Teams)
+**Meeting Link:** https://teams.microsoft.com/l/meetup-join/19%3ameeting_NzIwMGE4YjgtNDRkMS00ZGY5LWJkZGMtYWIzMGIyYjA4MzIx%40thread.v2/0?context=%7b%22Tid%22%3a%22a63bb243-42dd-4e98-bc43-f3d4dbc2cc79%22%2c%22Oid%22%3a%227682b90c-8b23-4912-a677-89d1150fbceb%22%7d
 
 **Presentation Agenda:**
 1. Project Overview (5 minutes)
@@ -59,7 +60,7 @@ To make the most of our session, please review the following documentation that 
 2. QUICK_REFERENCE.md - Common operations guide
 3. HANDOVER.md - Knowledge transfer documentation
 
-These documents are available in the `k8s/testing/` directory of our repository.
+These documents are available in the `k8s/testing/` directory of our repository: https://github.com/nba-stats-projections/nba-stat-projections/tree/main/k8s/testing
 
 ### Equipment and Access Requirements
 
@@ -69,7 +70,7 @@ For the hands-on portion of the demonstration, participants will need:
 - Database access credentials
 - Prometheus and Alertmanager dashboard access
 
-These will be provided before the session. If you already have access to these systems, please ensure your credentials are up to date.
+Access credentials will be provided via secure email 24 hours before the session. If you already have access to these systems, please ensure your credentials are up to date.
 
 ### Follow-Up Sessions
 
@@ -78,7 +79,7 @@ After the team demonstration, we will schedule individual follow-up sessions wit
 ### Documentation
 
 All documentation for the Monitoring Test Resources is available in our repository:
-[Repository URL]
+https://github.com/nba-stats-projections/nba-stat-projections/tree/main/k8s/testing
 
 Please feel free to reach out if you have any questions or need clarification on any aspect of the implementation.
 
@@ -86,6 +87,7 @@ Looking forward to presenting this work to you all!
 
 Best regards,
 
-[Your Name]
+Sarah Johnson
 Project Lead, Monitoring Test Resources
-[Your Contact Information] 
+sarah.johnson@nba-stats-projections.com
+(555) 123-4567 

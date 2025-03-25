@@ -1,0 +1,4 @@
+This is a placeholder file for the demonstration environment setup.
+It will be used to create a ConfigMap in the Kubernetes cluster.
+
+Exercise instructions will be provided during the knowledge transfer session. 
