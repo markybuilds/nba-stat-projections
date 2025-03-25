@@ -44,4 +44,41 @@
 - HTTPS for all communications
 - Rate limiting to prevent abuse
 - No sensitive user data stored in the system
-- Supabase security best practices for database access 
+- Supabase security best practices for database access
+
+## Testing Infrastructure
+
+### Code Coverage
+- Coverage reporting configured using Istanbul/NYC with Playwright
+- Coverage thresholds:
+  - Statements: 80%
+  - Branches: 70%
+  - Functions: 80%
+  - Lines: 80%
+- Multiple report formats:
+  - HTML for visual inspection
+  - JSON for programmatic consumption
+  - Cobertura XML for CI/CD integration
+  - Text for command-line feedback
+- Coverage scripts:
+  - `npm run test:coverage` - Run tests with coverage
+  - `npm run test:coverage:report` - View coverage report
+  - `npm run test:coverage:ci` - CI mode with specific reporters
+
+### Test Types
+- E2E tests using Playwright
+- Visual regression testing
+- Accessibility testing
+- Performance testing
+- API testing
+- Mobile-specific testing
+
+## Dependencies
+- Playwright for E2E testing
+- Istanbul/NYC for code coverage
+- Supabase for backend
+- Next.js for frontend
+- React for UI components
+- TypeScript for type safety
+- ESLint for code quality
+- Prettier for code formatting 

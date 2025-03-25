@@ -19,7 +19,10 @@
     "test:visual:update": "playwright test visual.spec.ts --update-snapshots",
     "test:report": "playwright show-report",
     "test:update-snapshots": "playwright test --update-snapshots",
-    "test:codegen": "playwright codegen"
+    "test:codegen": "playwright codegen",
+    "test:coverage": "playwright test --config=playwright.coverage.config.ts",
+    "test:coverage:report": "playwright show-report test-results/coverage/coverage-report",
+    "test:coverage:ci": "playwright test --config=playwright.coverage.config.ts --reporter=dot,json,junit"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
@@ -31,15 +34,17 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.8.1",
+    "@istanbuljs/nyc-config-typescript": "^1.0.2",
     "@playwright/test": "^1.40.0",
     "@types/node": "^20.10.0",
     "@types/react": "^18.2.39",
     "@types/react-dom": "^18.2.17",
     "eslint": "^8.54.0",
     "eslint-config-next": "^14.0.3",
+    "nyc": "^15.1.0",
     "prettier": "^3.1.0"
   },
   "engines": {
     "node": ">=18.0.0"
   }
-} 
+}
