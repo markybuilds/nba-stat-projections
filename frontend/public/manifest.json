@@ -1,0 +1,106 @@
+{
+  "name": "NBA Stat Projections",
+  "short_name": "NBA Stats",
+  "description": "Statistical projections for NBA players and games with advanced visualization and filtering",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Players",
+      "short_name": "Players",
+      "description": "View all NBA players",
+      "url": "/players",
+      "icons": [{ "src": "/icons/players.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Games",
+      "short_name": "Games",
+      "description": "View NBA games schedule",
+      "url": "/games",
+      "icons": [{ "src": "/icons/games.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Projections",
+      "short_name": "Projections",
+      "description": "View player projections",
+      "url": "/projections",
+      "icons": [{ "src": "/icons/projections.png", "sizes": "192x192" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/mobile-players.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Players Screen on NBA Stat Projections"
+    },
+    {
+      "src": "/screenshots/mobile-games.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Games Screen on NBA Stat Projections"
+    },
+    {
+      "src": "/screenshots/desktop-projections.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Projections Screen on NBA Stat Projections"
+    }
+  ]
+} 

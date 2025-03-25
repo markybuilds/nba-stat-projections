@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { getPlayerImageUrl, getTeamColor } from "@/lib/image-utils";
@@ -10,9 +10,10 @@ export interface PlayerAvatarProps {
   playerId: string | number;
   playerName?: string;
   teamId?: string | number;
-  size?: "sm" | "md" | "lg" | "xl";
+  size?: "xs" | "sm" | "md" | "lg" | "xl";
   className?: string;
   showTeamColor?: boolean;
+  priority?: boolean;
 }
 
 export function PlayerAvatar({ 
@@ -21,8 +22,10 @@ export function PlayerAvatar({
   teamId,
   size = "md", 
   className,
-  showTeamColor = true
+  showTeamColor = true,
+  priority = false
 }: PlayerAvatarProps) {
+  const [imageError, setImageError] = useState(false);
   const playerImageUrl = getPlayerImageUrl(playerId);
   
   // Get player initials for fallback
@@ -40,10 +43,20 @@ export function PlayerAvatar({
   
   // Define dimensions based on size
   const sizeClasses = {
+    xs: "h-6 w-6",
     sm: "h-8 w-8",
     md: "h-12 w-12",
     lg: "h-16 w-16",
     xl: "h-24 w-24"
+  };
+
+  // Define dimensions in pixels for proper image sizing
+  const dimensions = {
+    xs: 24,
+    sm: 32,
+    md: 48,
+    lg: 64,
+    xl: 96
   };
   
   const ringClasses = showTeamColor && teamId 
@@ -56,23 +69,36 @@ export function PlayerAvatar({
       ringClasses,
       className
     )}>
-      <AvatarImage 
-        src={playerImageUrl} 
-        alt={playerName || `Player ${playerId}`} 
-      />
-      <AvatarFallback 
-        className={cn(
-          "bg-gray-200 text-gray-700",
-          {
-            "text-xs": size === "sm",
-            "text-sm": size === "md",
-            "text-base": size === "lg",
-            "text-lg": size === "xl",
-          }
-        )}
-      >
-        {initials}
-      </AvatarFallback>
+      {!imageError ? (
+        <div className="w-full h-full relative overflow-hidden rounded-full">
+          <Image 
+            src={playerImageUrl} 
+            alt={playerName || `Player ${playerId}`}
+            width={dimensions[size]}
+            height={dimensions[size]}
+            className="object-cover"
+            onError={() => setImageError(true)}
+            loading={priority ? "eager" : "lazy"}
+            priority={priority}
+            sizes={`(max-width: 768px) ${dimensions[size]}px, ${dimensions[size]}px`}
+          />
+        </div>
+      ) : (
+        <AvatarFallback 
+          className={cn(
+            "bg-gray-200 text-gray-700",
+            {
+              "text-[10px]": size === "xs",
+              "text-xs": size === "sm",
+              "text-sm": size === "md",
+              "text-base": size === "lg",
+              "text-lg": size === "xl",
+            }
+          )}
+        >
+          {initials}
+        </AvatarFallback>
+      )}
     </Avatar>
   );
 } 

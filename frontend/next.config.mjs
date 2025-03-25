@@ -1,5 +1,16 @@
 import withBundleAnalyzer from '@next/bundle-analyzer';
 import { PHASE_DEVELOPMENT_SERVER } from 'next/constants.js';
+import withPWAInit from '@ducanh2912/next-pwa';
+
+// Initialize PWA support
+const withPWA = withPWAInit({
+  dest: 'public',
+  disable: process.env.NODE_ENV === 'development',
+  register: true,
+  skipWaiting: true,
+  runtimeCaching: [], // We'll define our own cache strategies in service-worker.ts
+  buildExcludes: [/middleware-manifest\.json$/],
+});
 
 const bundleAnalyzer = withBundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
@@ -73,6 +84,10 @@ const nextConfig = (phase) => {
               key: 'X-DNS-Prefetch-Control',
               value: 'on',
             },
+            {
+              key: 'Service-Worker-Allowed',
+              value: '/',
+            },
           ],
         },
         {
@@ -123,7 +138,20 @@ const nextConfig = (phase) => {
     
     // Add custom webpack config if needed
     webpack: (config, { dev, isServer }) => {
-      // Custom webpack configurations can go here
+      // Import our service worker configuration
+      if (!isServer && !dev) {
+        // Ensure service worker is registered
+        const serviceWorkerConfig = require('./src/lib/service-worker');
+        
+        // Expose our custom service worker configuration to the PWA plugin
+        config.plugins.push(
+          new config.plugins.DefinePlugin({
+            'process.env.NEXT_PWA_CACHE_ROUTES': JSON.stringify(serviceWorkerConfig.cacheableRoutes),
+            'process.env.NEXT_PWA_PRECACHE_URLS': JSON.stringify(serviceWorkerConfig.precacheUrls),
+            'process.env.NEXT_PWA_OFFLINE_FALLBACKS': JSON.stringify(serviceWorkerConfig.offlineFallback),
+          })
+        );
+      }
       return config;
     },
   };
@@ -131,5 +159,5 @@ const nextConfig = (phase) => {
   return baseConfig;
 };
 
-// Export the configuration with bundle analyzer wrapper
-export default bundleAnalyzer(nextConfig); 
+// Export the configuration with PWA and bundle analyzer wrappers
+export default bundleAnalyzer(withPWA(nextConfig)); 

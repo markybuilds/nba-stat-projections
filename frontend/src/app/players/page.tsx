@@ -1,13 +1,16 @@
-import React from "react";
-import Layout from "@/components/layout";
-import { getPlayers } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
+import { Suspense } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { getPlayers } from "@/lib/api";
+import dynamic from "next/dynamic";
 import { Badge } from "@/components/ui/badge";
-import Link from "next/link";
-import { PlayerAvatar } from "@/components/ui/player-avatar";
-import { TeamLogo } from "@/components/ui/team-logo";
+import { PageTransition } from "@/components/page-transition";
+
+// Dynamically import the client component to reduce initial bundle size
+const PlayersClient = dynamic(() => import("./players-client"), {
+  loading: () => <PlayersLoading />,
+  ssr: false // Disable server-side rendering for this component
+});
 
 // Generate static params for this page with revalidation every 12 hours (43200 seconds)
 export const revalidate = 43200;
@@ -17,134 +20,107 @@ export const dynamic = 'force-static';
 
 // Add metadata for this page
 export const metadata = {
-  title: 'NBA Players | NBA Stat Projections',
-  description: 'Complete roster of active NBA players with team affiliations and positions.'
+  title: "Players - NBA Projections",
+  description: "Browse NBA Players",
 };
 
-export default async function PlayersPage() {
-  // In a real application, we would implement client-side filtering and pagination
-  // For simplicity in this example, we're just fetching all active players
-  const players = await getPlayers(true);
-  
+function PlayerCardSkeleton() {
   return (
-    <Layout>
-      <div className="container py-6">
-        <h1 className="text-3xl font-bold mb-6">NBA Players</h1>
-        
-        <Card className="w-full">
-          <CardHeader>
-            <CardTitle>All Active Players</CardTitle>
-            {/* In a client component, we would implement these filters */}
-            <div className="flex flex-col sm:flex-row gap-4 mt-4">
-              <Input
-                placeholder="Search players..."
-                className="max-w-xs"
-                disabled
-              />
-              <div className="text-sm text-muted-foreground">
-                Filtering would be implemented in a client component
+    <Card className="overflow-hidden h-[140px]">
+      <CardContent className="p-4">
+        <div className="flex items-center gap-3 mb-3">
+          <Skeleton className="h-12 w-12 rounded-full" />
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-[120px]" />
+            <div className="flex items-center gap-1">
+              <Skeleton className="h-4 w-4 rounded-full" />
+              <Skeleton className="h-3 w-[40px]" />
+            </div>
+          </div>
+        </div>
+        <div className="flex justify-between items-center mt-4">
+          <Skeleton className="h-5 w-16 rounded-full" />
+          <Skeleton className="h-4 w-6" />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function MobilePlayersLoading() {
+  return (
+    <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <PlayerCardSkeleton key={i} />
+      ))}
+    </div>
+  );
+}
+
+function DesktopPlayersLoading() {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>All Players</CardTitle>
+        <div className="flex flex-wrap gap-4 mt-4">
+          <Skeleton className="h-10 w-64" />
+          <Skeleton className="h-10 w-[180px]" />
+          <Skeleton className="h-10 w-[180px]" />
+          <Skeleton className="h-10 w-36" />
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-2">
+          {Array.from({ length: 10 }).map((_, i) => (
+            <div key={i} className="flex items-center py-3 border-b">
+              <div className="flex items-center gap-2 w-1/3">
+                <Skeleton className="h-8 w-8 rounded-full" />
+                <Skeleton className="h-4 w-[150px]" />
+              </div>
+              <div className="flex items-center gap-2 w-1/4">
+                <Skeleton className="h-4 w-4 rounded-full" />
+                <Skeleton className="h-4 w-[80px]" />
+              </div>
+              <div className="w-1/4">
+                <Skeleton className="h-5 w-16 rounded-full" />
+              </div>
+              <div className="w-1/6 text-right">
+                <Skeleton className="h-4 w-6 ml-auto" />
               </div>
             </div>
-          </CardHeader>
-          <CardContent>
-            {/* Desktop Table View - Hidden on Mobile */}
-            <div className="hidden md:block">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Player</TableHead>
-                    <TableHead>Team</TableHead>
-                    <TableHead>Position</TableHead>
-                    <TableHead className="text-right">Jersey #</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {players.map((player) => (
-                    <TableRow key={player.id}>
-                      <TableCell>
-                        <Link 
-                          href={`/players/${player.id}`}
-                          className="font-medium hover:underline flex items-center gap-2"
-                        >
-                          <PlayerAvatar 
-                            playerId={player.id}
-                            playerName={player.full_name}
-                            teamId={player.team_id}
-                            size="sm"
-                            showTeamColor
-                          />
-                          <span>{player.full_name}</span>
-                        </Link>
-                      </TableCell>
-                      <TableCell className="flex items-center gap-2">
-                        <TeamLogo teamId={player.team_id} size="xs" />
-                        <span>{player.team ? player.team.abbreviation : player.team_id}</span>
-                      </TableCell>
-                      <TableCell>
-                        {player.position && (
-                          <Badge variant="outline">
-                            {player.position}
-                          </Badge>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {player.jersey_number || "-"}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-            
-            {/* Mobile Card View - Shown only on Mobile */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:hidden gap-4">
-              {players.map((player) => (
-                <Link 
-                  href={`/players/${player.id}`}
-                  key={player.id}
-                  className="group"
-                >
-                  <Card className="h-full hover:border-primary transition-colors">
-                    <CardContent className="p-4">
-                      <div className="flex items-center gap-3 mb-3">
-                        <PlayerAvatar 
-                          playerId={player.id}
-                          playerName={player.full_name}
-                          teamId={player.team_id}
-                          size="md"
-                          showTeamColor
-                        />
-                        <div>
-                          <h3 className="font-semibold group-hover:text-primary transition-colors line-clamp-1">
-                            {player.full_name}
-                          </h3>
-                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                            <TeamLogo teamId={player.team_id} size="xs" />
-                            <span>{player.team ? player.team.abbreviation : player.team_id}</span>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex justify-between items-center mt-2 text-sm">
-                        <div>
-                          {player.position && (
-                            <Badge variant="outline">
-                              {player.position}
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="text-muted-foreground">
-                          #{player.jersey_number || "N/A"}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function PlayersLoading() {
+  return (
+    <div className="space-y-4">
+      <div className="md:block hidden">
+        <DesktopPlayersLoading />
       </div>
-    </Layout>
+      <div className="md:hidden block">
+        <MobilePlayersLoading />
+      </div>
+    </div>
+  );
+}
+
+export default async function PlayersPage() {
+  // Fetch all players
+  const players = await getPlayers();
+
+  return (
+    <PageTransition>
+      <div className="container py-4 md:py-8 space-y-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Players</h1>
+        </div>
+        
+        <PlayersClient initialPlayers={players} />
+      </div>
+    </PageTransition>
   );
 } 

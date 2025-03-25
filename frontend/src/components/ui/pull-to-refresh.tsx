@@ -1,88 +1,116 @@
 "use client";
 
-import React, { useRef, useCallback } from 'react';
-import { usePullToRefresh } from '@/hooks/use-pull-to-refresh';
+import React, { forwardRef } from 'react';
+import { RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { usePullToRefresh } from '@/hooks/use-pull-refresh';
+import { motion, AnimatePresence } from 'framer-motion';
 
-interface PullToRefreshProps {
-  /**
-   * Function to call when refresh is triggered
-   */
-  onRefresh: () => Promise<void>;
-  
-  /**
-   * Whether to enable the pull to refresh functionality
-   * @default true
-   */
-  enabled?: boolean;
-  
-  /**
-   * The distance in pixels that the user needs to pull down to trigger a refresh
-   * @default 100
-   */
-  pullDistance?: number;
-  
-  /**
-   * Minimum time between refreshes in milliseconds
-   * @default 1000
-   */
-  throttleMs?: number;
-  
-  /**
-   * Optional CSS class name
-   */
-  className?: string;
-  
-  /**
-   * Content to render
-   */
+interface PullToRefreshProps extends React.HTMLAttributes<HTMLDivElement> {
+  onRefresh: () => Promise<any>;
   children: React.ReactNode;
+  pullDownThreshold?: number;
+  maxPullDownDistance?: number;
+  refreshTriggerThreshold?: number;
+  spinnerColor?: string;
+  spinnerSize?: number;
+  containerClassName?: string;
+  indicatorClassName?: string;
 }
 
 /**
- * A component that wraps content and adds pull-to-refresh functionality
- * The container must be scrollable for this to work properly
+ * PullToRefresh Component
+ * 
+ * A component that adds native-feeling pull-to-refresh functionality
+ * to mobile interfaces
  */
-export function PullToRefresh({
-  onRefresh,
-  enabled = true,
-  pullDistance = 100,
-  throttleMs = 1000,
-  className,
-  children
-}: PullToRefreshProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  
-  // Need to wrap onRefresh as useCallback for usePullToRefresh
-  const handleRefresh = useCallback(async () => {
-    await onRefresh();
-  }, [onRefresh]);
-  
-  // Use the pull-to-refresh hook
-  const { isRefreshing, pullProgress } = usePullToRefresh({
-    containerRef,
-    pullDistance,
-    onRefresh: handleRefresh,
-    enabled,
-    throttleMs
-  });
-  
-  return (
-    <div className={cn("relative overflow-auto", className)} ref={containerRef}>
-      {/* Optional progress indicator that could be added */}
-      {pullProgress > 0 && pullProgress < 1 && !isRefreshing && (
+export const PullToRefresh = forwardRef<HTMLDivElement, PullToRefreshProps>(
+  ({ 
+    onRefresh, 
+    children, 
+    pullDownThreshold = 120,
+    maxPullDownDistance = 180,
+    refreshTriggerThreshold = 0.6,
+    spinnerColor = 'var(--primary)',
+    spinnerSize = 24,
+    containerClassName,
+    indicatorClassName,
+    ...props
+  }, ref) => {
+    const { 
+      containerRef, 
+      pullDistance, 
+      isRefreshing, 
+      pullProgress
+    } = usePullToRefresh({
+      pullDownThreshold,
+      maxPullDownDistance,
+      refreshTriggerThreshold,
+      onRefresh
+    });
+    
+    return (
+      <div 
+        ref={(el) => {
+          // Merge refs
+          if (typeof ref === 'function') {
+            ref(el);
+          } else if (ref) {
+            ref.current = el;
+          }
+          
+          if (containerRef) {
+            containerRef.current = el;
+          }
+        }}
+        className={cn("relative touch-manipulation", containerClassName)}
+        {...props}
+      >
+        {/* Pull indicator */}
         <div 
-          className="absolute top-0 left-0 w-full h-1 bg-gray-200 dark:bg-gray-800"
-          aria-hidden="true"
+          className={cn(
+            "absolute left-0 right-0 flex justify-center items-center z-10 pointer-events-none",
+            indicatorClassName
+          )}
+          style={{ 
+            transform: `translateY(${pullDistance - 60}px)`,
+            opacity: Math.min(1, pullProgress * 1.5),
+          }}
         >
-          <div 
-            className="h-full bg-primary"
-            style={{ width: `${pullProgress * 100}%` }}
-          />
+          <div className="bg-background rounded-full shadow-md p-3 flex items-center justify-center">
+            <motion.div
+              animate={{ 
+                rotate: isRefreshing ? 360 : pullProgress > 0.8 ? 180 : pullProgress * 180 
+              }}
+              transition={{ 
+                duration: isRefreshing ? 1 : 0.2,
+                repeat: isRefreshing ? Infinity : 0,
+                ease: "linear"
+              }}
+            >
+              <RefreshCw 
+                size={spinnerSize} 
+                style={{ 
+                  color: spinnerColor,
+                  strokeWidth: isRefreshing ? 3 : 2
+                }} 
+              />
+            </motion.div>
+          </div>
         </div>
-      )}
-      
-      {children}
-    </div>
-  );
-} 
+        
+        {/* Content container with pull distance */}
+        <div 
+          style={{ 
+            transform: `translateY(${pullDistance}px)`,
+            transition: isRefreshing || pullDistance === 0 ? 'transform 0.2s ease-out' : 'none',
+          }}
+        >
+          {children}
+        </div>
+      </div>
+    );
+  }
+);
+
+PullToRefresh.displayName = 'PullToRefresh'; 
