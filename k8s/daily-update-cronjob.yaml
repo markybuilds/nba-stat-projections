@@ -12,7 +12,7 @@ spec:
           containers:
           - name: nba-data-update
             image: ghcr.io/markybuilds/nba-backend:latest
-            command: ["python", "-m", "app.scripts.update_daily_data"]
+            command: ["python", "-m", "app.scripts.scheduler_cli", "run", "daily_update"]
             env:
             - name: SUPABASE_URL
               valueFrom:
