@@ -522,3 +522,110 @@ Reorganized the project codebase to eliminate duplicate directories and ensure a
 - **Created DB_OPTIMIZATION.md**: Documented the database optimization approach, techniques used, and best practices.
 - **Usage Examples**: Added code examples for using the optimized repository and configuring cache settings.
 - **Monitoring Instructions**: Provided guidance on monitoring database performance using the new tooling. 
+
+## Setting Up CDN with Cloudflare
+
+**Date: Current Date**
+
+### Description
+
+Implemented Cloudflare CDN integration for the NBA Stat Projections application to optimize static asset delivery, improve global performance, and reduce server load.
+
+### Tasks Completed
+
+1. **Research and Planning**
+   - Evaluated Cloudflare as the CDN provider
+   - Analyzed Next.js integration options with Cloudflare
+   - Documented integration approach and configuration settings
+
+2. **Development**
+   - Created custom Cloudflare image loader for Next.js `Image` component
+   - Updated Next.js configuration to support CDN asset prefixing
+   - Implemented conditional CDN configuration based on environment
+   - Created CDN utility functions for URL handling and cache configuration
+   - Updated image components to work with Cloudflare's image optimization
+
+3. **Configuration**
+   - Added environment variables for CDN configuration
+   - Created cache control settings for different types of content
+   - Configured optimal TTLs for static assets, API responses, and dynamic content
+   - Setup production environment example configuration
+
+4. **Deployment**
+   - Created deployment scripts for Cloudflare Pages
+   - Added support for Windows and Linux/macOS environments
+   - Documented deployment process with step-by-step instructions
+
+5. **Documentation**
+   - Created comprehensive documentation for CDN setup
+   - Added troubleshooting guide for common Cloudflare integration issues
+   - Documented caching strategies for different content types
+   - Provided monitoring and optimization guidelines
+
+### Technical Details
+
+- **Asset Prefixing**: Configured Next.js to use Cloudflare CDN as asset prefix in production
+- **Image Optimization**: Implemented Cloudflare's Image Resizing service integration
+- **Caching Strategies**: Set up tiered caching approach with different TTLs:
+  - Static assets (JS/CSS): 7 days CDN, 1 day browser, immutable for versioned files
+  - Images: 7 days CDN, 1 day browser
+  - API responses: 5 minutes CDN, 1 minute browser
+  - Dynamic content: 1 minute CDN, no browser caching
+
+### Benefits
+
+- Reduced server load by offloading static assets to CDN
+- Improved global performance with edge caching
+- Enhanced image loading with automatic WebP/AVIF conversion
+- Optimized caching strategy for different content types
+- Added protection against DDoS and other security threats
+
+## Supabase Authentication Implementation - 2024-04-02
+**Complexity Level:** 3
+**Description:** Implementation of a comprehensive authentication system using Supabase Auth, including user registration, login functionality, protected routes, and profile management.
+
+**Implementation Details:**
+- Created a Supabase client utility for authentication integration
+- Implemented AuthProvider context for managing authentication state
+- Created login and signup pages with complete form validation
+- Developed profile page for displaying and editing user information
+- Implemented RouteGuard for protecting authenticated routes
+- Created an auth-aware header with conditional navigation options
+- Set up session persistence for maintaining authentication state
+- Added error handling and toast notifications for auth operations
+
+**Challenges:**
+- Managing authentication state consistently across components
+- Implementing secure route protection mechanisms
+- Designing an intuitive and responsive authentication UI
+- Handling form validation for registration and login
+- Creating a seamless user experience with loading states
+- Setting up proper error handling for authentication operations
+
+**Key Decisions:**
+- Using Supabase Auth for secure authentication services
+- Implementing React Context for global auth state management
+- Creating a custom useAuth hook for simplified authentication access
+- Using form validation with error messaging for better user experience
+- Implementing a route guard that checks authentication status
+- Creating an auth-aware header component with user menu
+
+**Learnings:**
+- Authentication context providers simplify state management across components
+- Custom hooks provide clean access to authentication functionality
+- Form validation improves user experience and security
+- Loading states and proper error handling are essential for auth UIs
+- Route protection requires careful implementation to avoid redirect loops
+- Responsive design for auth components improves mobile usability
+
+**Files Changed:**
+- Created frontend/src/lib/supabase.ts for Supabase client configuration
+- Created frontend/src/providers/auth-provider.tsx for authentication context
+- Implemented frontend/src/components/auth/route-guard.tsx for protected routes
+- Added frontend/src/app/auth/login/page.tsx and components/auth/login-form.tsx
+- Added frontend/src/app/auth/signup/page.tsx and components/auth/signup-form.tsx
+- Created frontend/src/app/profile/page.tsx for user profile management
+- Added frontend/src/app/profile/edit/page.tsx for profile editing
+- Updated frontend/src/components/layout/header.tsx for auth-aware navigation
+- Updated frontend/src/app/layout.tsx to include AuthProvider and RouteGuard
+- Created frontend/.env.example with Supabase environment variables 
