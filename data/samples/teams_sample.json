@@ -1,0 +1,127 @@
+[
+  {
+    "id": 1,
+    "abbreviation": "ATL",
+    "name": "Atlanta Hawks",
+    "conference": "East",
+    "division": "Southeast",
+    "stats": {
+      "wins": 36,
+      "losses": 46,
+      "win_pct": 0.439,
+      "points_per_game": 118.9,
+      "opp_points_per_game": 120.7,
+      "pace": 101.1,
+      "offensive_rating": 118.1,
+      "defensive_rating": 119.9
+    },
+    "projection": {
+      "wins": 39,
+      "losses": 43,
+      "win_pct": 0.476,
+      "playoff_probability": 0.45,
+      "championship_probability": 0.01,
+      "confidence": 0.82
+    }
+  },
+  {
+    "id": 2,
+    "abbreviation": "BOS",
+    "name": "Boston Celtics",
+    "conference": "East",
+    "division": "Atlantic",
+    "stats": {
+      "wins": 64,
+      "losses": 18,
+      "win_pct": 0.780,
+      "points_per_game": 120.6,
+      "opp_points_per_game": 108.2,
+      "pace": 98.6,
+      "offensive_rating": 122.2,
+      "defensive_rating": 109.6
+    },
+    "projection": {
+      "wins": 62,
+      "losses": 20,
+      "win_pct": 0.756,
+      "playoff_probability": 0.99,
+      "championship_probability": 0.24,
+      "confidence": 0.88
+    }
+  },
+  {
+    "id": 3,
+    "abbreviation": "BKN",
+    "name": "Brooklyn Nets",
+    "conference": "East",
+    "division": "Atlantic",
+    "stats": {
+      "wins": 32,
+      "losses": 50,
+      "win_pct": 0.390,
+      "points_per_game": 111.5,
+      "opp_points_per_game": 115.3,
+      "pace": 99.2,
+      "offensive_rating": 112.3,
+      "defensive_rating": 116.2
+    },
+    "projection": {
+      "wins": 30,
+      "losses": 52,
+      "win_pct": 0.366,
+      "playoff_probability": 0.25,
+      "championship_probability": 0.001,
+      "confidence": 0.78
+    }
+  },
+  {
+    "id": 4,
+    "abbreviation": "CHA",
+    "name": "Charlotte Hornets",
+    "conference": "East",
+    "division": "Southeast",
+    "stats": {
+      "wins": 21,
+      "losses": 61,
+      "win_pct": 0.256,
+      "points_per_game": 107.5,
+      "opp_points_per_game": 115.8,
+      "pace": 100.5,
+      "offensive_rating": 107.0,
+      "defensive_rating": 115.3
+    },
+    "projection": {
+      "wins": 26,
+      "losses": 56,
+      "win_pct": 0.317,
+      "playoff_probability": 0.10,
+      "championship_probability": 0.0001,
+      "confidence": 0.83
+    }
+  },
+  {
+    "id": 5,
+    "abbreviation": "CHI",
+    "name": "Chicago Bulls",
+    "conference": "East",
+    "division": "Central",
+    "stats": {
+      "wins": 39,
+      "losses": 43,
+      "win_pct": 0.476,
+      "points_per_game": 112.8,
+      "opp_points_per_game": 114.7,
+      "pace": 96.9,
+      "offensive_rating": 116.3,
+      "defensive_rating": 118.2
+    },
+    "projection": {
+      "wins": 35,
+      "losses": 47,
+      "win_pct": 0.427,
+      "playoff_probability": 0.35,
+      "championship_probability": 0.005,
+      "confidence": 0.81
+    }
+  }
+] 

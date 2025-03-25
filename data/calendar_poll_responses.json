@@ -1,0 +1,72 @@
+[
+  {
+    "name": "John Smith",
+    "email": "john.smith@example.com",
+    "poll_response": "July 3",
+    "team": "Product",
+    "role": "Product Manager"
+  },
+  {
+    "name": "Sarah Johnson",
+    "email": "sarah.johnson@example.com",
+    "poll_response": "July 3",
+    "team": "Engineering",
+    "role": "Lead Developer"
+  },
+  {
+    "name": "Michael Chen",
+    "email": "michael.chen@example.com",
+    "poll_response": "July 3",
+    "team": "Data Science",
+    "role": "ML Engineer"
+  },
+  {
+    "name": "Emily Rodriguez",
+    "email": "emily.rodriguez@example.com",
+    "poll_response": "July 3, July 5",
+    "team": "Quality Assurance",
+    "role": "QA Lead"
+  },
+  {
+    "name": "David Kim",
+    "email": "david.kim@example.com",
+    "poll_response": "July 1, July 3",
+    "team": "UX/UI",
+    "role": "UX Designer"
+  },
+  {
+    "name": "Jennifer Patel",
+    "email": "jennifer.patel@example.com",
+    "poll_response": "July 3, July 5",
+    "team": "Operations",
+    "role": "Operations Manager"
+  },
+  {
+    "name": "Robert Wilson",
+    "email": "robert.wilson@example.com",
+    "poll_response": "July 3",
+    "team": "Executive",
+    "role": "CTO"
+  },
+  {
+    "name": "Lisa Thompson",
+    "email": "lisa.thompson@example.com",
+    "poll_response": "July 3, July 5",
+    "team": "Marketing",
+    "role": "Marketing Director"
+  },
+  {
+    "name": "James Brown",
+    "email": "james.brown@example.com",
+    "poll_response": "July 3",
+    "team": "Data",
+    "role": "Database Administrator"
+  },
+  {
+    "name": "Karen Lee",
+    "email": "karen.lee@example.com",
+    "poll_response": "July 1, July 3, July 5",
+    "team": "Security",
+    "role": "Security Specialist"
+  }
+] 

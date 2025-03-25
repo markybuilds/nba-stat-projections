@@ -1,0 +1,50 @@
+[
+  {
+    "name": "Jennifer Patel",
+    "email": "jennifer.patel@example.com",
+    "role": "Operations Manager",
+    "department": "IT Operations"
+  },
+  {
+    "name": "James Brown",
+    "email": "james.brown@example.com",
+    "role": "Database Administrator",
+    "department": "Data Infrastructure"
+  },
+  {
+    "name": "Karen Lee",
+    "email": "karen.lee@example.com",
+    "role": "Security Specialist",
+    "department": "Information Security"
+  },
+  {
+    "name": "Thomas Garcia",
+    "email": "thomas.garcia@example.com",
+    "role": "Network Engineer",
+    "department": "Network Operations"
+  },
+  {
+    "name": "Alex Zhang",
+    "email": "alex.zhang@example.com",
+    "role": "DevOps Engineer",
+    "department": "Platform Engineering"
+  },
+  {
+    "name": "Michelle Williams",
+    "email": "michelle.williams@example.com",
+    "role": "System Administrator",
+    "department": "Infrastructure"
+  },
+  {
+    "name": "Raj Patel",
+    "email": "raj.patel@example.com",
+    "role": "Cloud Architect",
+    "department": "Cloud Operations"
+  },
+  {
+    "name": "Taylor Johnson",
+    "email": "taylor.johnson@example.com",
+    "role": "Release Manager",
+    "department": "Release Engineering"
+  }
+] 

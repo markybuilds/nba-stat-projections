@@ -1,0 +1,39 @@
+{
+  "production": {
+    "namespace": "nba-stat-projections-prod",
+    "db_host": "postgres.nba-stat-projections-prod.svc.cluster.local",
+    "db_user": "nba_admin",
+    "db_password": "${DB_PASSWORD}",
+    "db_name": "nba_stats",
+    "tls_secret_name": "nba-stat-projections-tls",
+    "api_secret_name": "api-credentials",
+    "db_secret_name": "database-credentials",
+    "jwt_secret_name": "jwt-token-secret",
+    "api_config_name": "api-config",
+    "frontend_config_name": "frontend-config",
+    "external_api_url": "https://nba-stats-api.external.com",
+    "app_domain": "stats.nba-projections.com",
+    "required_namespaces": ["nba-stat-projections-prod", "ingress-nginx", "cert-manager"]
+  },
+  "staging": {
+    "namespace": "nba-stat-projections-staging",
+    "db_host": "postgres.nba-stat-projections-staging.svc.cluster.local",
+    "db_user": "nba_admin",
+    "db_password": "${DB_PASSWORD}",
+    "db_name": "nba_stats",
+    "tls_secret_name": "nba-stat-projections-staging-tls",
+    "api_secret_name": "api-credentials",
+    "db_secret_name": "database-credentials",
+    "jwt_secret_name": "jwt-token-secret",
+    "api_config_name": "api-config",
+    "frontend_config_name": "frontend-config",
+    "external_api_url": "https://nba-stats-api-staging.external.com",
+    "app_domain": "staging.nba-projections.com",
+    "required_namespaces": ["nba-stat-projections-staging", "ingress-nginx", "cert-manager"]
+  },
+  "validation_levels": {
+    "critical": ["infrastructure", "database", "security"],
+    "recommended": ["configuration", "external"]
+  },
+  "timeout_seconds": 30
+} 

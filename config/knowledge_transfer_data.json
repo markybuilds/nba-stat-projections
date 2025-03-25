@@ -1,0 +1,396 @@
+{
+  "exercise_data": {
+    "players": [
+      {
+        "id": "ex-player-001",
+        "name": "James Johnson",
+        "team_id": "ex-team-001",
+        "position": "SF",
+        "height": 201,
+        "weight": 240,
+        "jersey_number": 16,
+        "birth_date": "1987-02-20",
+        "college": "Wake Forest",
+        "country": "USA",
+        "stats": {
+          "fgPercentage": 0.462,
+          "fg3Percentage": 0.336,
+          "ftPercentage": 0.768
+        }
+      },
+      {
+        "id": "ex-player-002",
+        "name": "Michael Carter",
+        "team_id": "ex-team-002",
+        "position": "PG",
+        "height": 185,
+        "weight": 175,
+        "jersey_number": 7,
+        "birth_date": "1995-05-07",
+        "college": "Duke",
+        "country": "USA",
+        "stats": {
+          "fgPercentage": 0.443,
+          "fg3Percentage": 0.391,
+          "ftPercentage": 0.882
+        }
+      },
+      {
+        "id": "ex-player-003",
+        "name": "David Robinson",
+        "team_id": "ex-team-003",
+        "position": "C",
+        "height": 216,
+        "weight": 235,
+        "jersey_number": 50,
+        "birth_date": "1990-08-06",
+        "college": "Georgetown",
+        "country": "USA",
+        "stats": {
+          "fgPercentage": 0.587,
+          "fg3Percentage": 0.231,
+          "ftPercentage": 0.698
+        }
+      },
+      {
+        "id": "ex-player-004",
+        "name": "Tony Paredes",
+        "team_id": "ex-team-001",
+        "position": "SG",
+        "height": 198,
+        "weight": 205,
+        "jersey_number": 9,
+        "birth_date": "1992-12-14",
+        "college": "Arizona",
+        "country": "Spain",
+        "stats": {
+          "fgPercentage": 0.471,
+          "fg3Percentage": 0.428,
+          "ftPercentage": 0.865
+        }
+      },
+      {
+        "id": "ex-player-005",
+        "name": "Lucas Williams",
+        "team_id": "ex-team-002",
+        "position": "PF",
+        "height": 208,
+        "weight": 245,
+        "jersey_number": 44,
+        "birth_date": "1989-03-27",
+        "college": "Kentucky",
+        "country": "USA",
+        "stats": {
+          "fgPercentage": 0.534,
+          "fg3Percentage": 0.285,
+          "ftPercentage": 0.723
+        }
+      }
+    ],
+    "teams": [
+      {
+        "id": "ex-team-001",
+        "name": "Example Rockets",
+        "city": "Houston",
+        "abbreviation": "HOU",
+        "conference": "West",
+        "division": "Southwest",
+        "founded": 1967,
+        "wins": 25,
+        "losses": 20
+      },
+      {
+        "id": "ex-team-002",
+        "name": "Example Celtics",
+        "city": "Boston",
+        "abbreviation": "BOS",
+        "conference": "East",
+        "division": "Atlantic",
+        "founded": 1946,
+        "wins": 32,
+        "losses": 13
+      },
+      {
+        "id": "ex-team-003",
+        "name": "Example Lakers",
+        "city": "Los Angeles",
+        "abbreviation": "LAL",
+        "conference": "West",
+        "division": "Pacific",
+        "founded": 1947,
+        "wins": 28,
+        "losses": 17
+      }
+    ],
+    "games": [
+      {
+        "id": "ex-game-001",
+        "home_team_id": "ex-team-001",
+        "away_team_id": "ex-team-002",
+        "date": "2024-07-08",
+        "status": "scheduled",
+        "time": "19:30:00",
+        "arena": "Exercise Arena",
+        "city": "Houston"
+      },
+      {
+        "id": "ex-game-002",
+        "home_team_id": "ex-team-003",
+        "away_team_id": "ex-team-001",
+        "date": "2024-07-10",
+        "status": "scheduled",
+        "time": "20:00:00",
+        "arena": "Training Center",
+        "city": "Los Angeles"
+      },
+      {
+        "id": "ex-game-003",
+        "home_team_id": "ex-team-002",
+        "away_team_id": "ex-team-003",
+        "date": "2024-07-12",
+        "status": "scheduled",
+        "time": "18:00:00",
+        "arena": "Practice Facility",
+        "city": "Boston"
+      }
+    ],
+    "game_stats": [
+      {
+        "game_id": "ex-hist-game-001",
+        "player_id": "ex-player-001",
+        "team_id": "ex-team-001",
+        "game_date": "2024-06-01",
+        "minutes_played": 34,
+        "points": 22,
+        "rebounds": 7,
+        "assists": 5,
+        "steals": 2,
+        "blocks": 1,
+        "turnovers": 3,
+        "field_goals_made": 9,
+        "field_goals_attempted": 18,
+        "three_points_made": 1,
+        "three_points_attempted": 4,
+        "free_throws_made": 3,
+        "free_throws_attempted": 4
+      },
+      {
+        "game_id": "ex-hist-game-002",
+        "player_id": "ex-player-001",
+        "team_id": "ex-team-001",
+        "game_date": "2024-06-03",
+        "minutes_played": 31,
+        "points": 18,
+        "rebounds": 5,
+        "assists": 7,
+        "steals": 1,
+        "blocks": 0,
+        "turnovers": 2,
+        "field_goals_made": 7,
+        "field_goals_attempted": 16,
+        "three_points_made": 2,
+        "three_points_attempted": 5,
+        "free_throws_made": 2,
+        "free_throws_attempted": 2
+      },
+      {
+        "game_id": "ex-hist-game-003",
+        "player_id": "ex-player-001",
+        "team_id": "ex-team-001",
+        "game_date": "2024-06-05",
+        "minutes_played": 33,
+        "points": 25,
+        "rebounds": 8,
+        "assists": 4,
+        "steals": 1,
+        "blocks": 2,
+        "turnovers": 1,
+        "field_goals_made": 10,
+        "field_goals_attempted": 19,
+        "three_points_made": 3,
+        "three_points_attempted": 6,
+        "free_throws_made": 2,
+        "free_throws_attempted": 3
+      },
+      {
+        "game_id": "ex-hist-game-004",
+        "player_id": "ex-player-002",
+        "team_id": "ex-team-002",
+        "game_date": "2024-06-02",
+        "minutes_played": 36,
+        "points": 17,
+        "rebounds": 3,
+        "assists": 12,
+        "steals": 3,
+        "blocks": 0,
+        "turnovers": 2,
+        "field_goals_made": 6,
+        "field_goals_attempted": 14,
+        "three_points_made": 3,
+        "three_points_attempted": 7,
+        "free_throws_made": 2,
+        "free_throws_attempted": 2
+      },
+      {
+        "game_id": "ex-hist-game-005",
+        "player_id": "ex-player-002",
+        "team_id": "ex-team-002",
+        "game_date": "2024-06-04",
+        "minutes_played": 34,
+        "points": 21,
+        "rebounds": 4,
+        "assists": 9,
+        "steals": 2,
+        "blocks": 0,
+        "turnovers": 3,
+        "field_goals_made": 8,
+        "field_goals_attempted": 17,
+        "three_points_made": 4,
+        "three_points_attempted": 9,
+        "free_throws_made": 1,
+        "free_throws_attempted": 2
+      },
+      {
+        "game_id": "ex-hist-game-006",
+        "player_id": "ex-player-003",
+        "team_id": "ex-team-003",
+        "game_date": "2024-06-01",
+        "minutes_played": 32,
+        "points": 14,
+        "rebounds": 15,
+        "assists": 2,
+        "steals": 1,
+        "blocks": 4,
+        "turnovers": 2,
+        "field_goals_made": 6,
+        "field_goals_attempted": 10,
+        "three_points_made": 0,
+        "three_points_attempted": 1,
+        "free_throws_made": 2,
+        "free_throws_attempted": 4
+      },
+      {
+        "game_id": "ex-hist-game-007",
+        "player_id": "ex-player-003",
+        "team_id": "ex-team-003",
+        "game_date": "2024-06-03",
+        "minutes_played": 28,
+        "points": 10,
+        "rebounds": 12,
+        "assists": 1,
+        "steals": 0,
+        "blocks": 3,
+        "turnovers": 1,
+        "field_goals_made": 5,
+        "field_goals_attempted": 9,
+        "three_points_made": 0,
+        "three_points_attempted": 0,
+        "free_throws_made": 0,
+        "free_throws_attempted": 0
+      }
+    ],
+    "projections": [
+      {
+        "id": "ex-proj-001",
+        "player_id": "ex-player-001",
+        "game_id": "ex-game-001",
+        "projection_date": "2024-07-07",
+        "points": 21.5,
+        "rebounds": 6.8,
+        "assists": 5.3,
+        "steals": 1.2,
+        "blocks": 1.0,
+        "turnovers": 2.1,
+        "minutes": 32.5,
+        "confidence": 0.85
+      },
+      {
+        "id": "ex-proj-002",
+        "player_id": "ex-player-002",
+        "game_id": "ex-game-001",
+        "projection_date": "2024-07-07",
+        "points": 19.2,
+        "rebounds": 3.5,
+        "assists": 10.7,
+        "steals": 2.1,
+        "blocks": 0.2,
+        "turnovers": 2.5,
+        "minutes": 34.0,
+        "confidence": 0.82
+      },
+      {
+        "id": "ex-proj-003",
+        "player_id": "ex-player-003",
+        "game_id": "ex-game-002",
+        "projection_date": "2024-07-07",
+        "points": 12.8,
+        "rebounds": 13.2,
+        "assists": 1.5,
+        "steals": 0.8,
+        "blocks": 3.4,
+        "turnovers": 1.6,
+        "minutes": 29.5,
+        "confidence": 0.79
+      },
+      {
+        "id": "ex-proj-004",
+        "player_id": "ex-player-004",
+        "game_id": "ex-game-001",
+        "projection_date": "2024-07-07",
+        "points": 18.3,
+        "rebounds": 4.2,
+        "assists": 3.7,
+        "steals": 1.6,
+        "blocks": 0.4,
+        "turnovers": 1.8,
+        "minutes": 30.2,
+        "confidence": 0.77
+      },
+      {
+        "id": "ex-proj-005",
+        "player_id": "ex-player-005",
+        "game_id": "ex-game-001",
+        "projection_date": "2024-07-07",
+        "points": 14.6,
+        "rebounds": 9.8,
+        "assists": 2.3,
+        "steals": 0.9,
+        "blocks": 1.5,
+        "turnovers": 2.0,
+        "minutes": 28.5,
+        "confidence": 0.81
+      }
+    ]
+  },
+  "test_accounts": [
+    {
+      "username": "kt_user1",
+      "email": "kt_user1@example.com",
+      "role": "viewer",
+      "description": "Basic user account for frontend exercises"
+    },
+    {
+      "username": "kt_user2",
+      "email": "kt_user2@example.com",
+      "role": "analyst",
+      "description": "Analyst account with additional data access privileges"
+    },
+    {
+      "username": "kt_admin",
+      "email": "kt_admin@example.com",
+      "role": "admin",
+      "description": "Admin account for backend and deployment exercises"
+    }
+  ],
+  "exercise_templates": {
+    "frontend_component": "src/components/ExerciseTemplate.tsx",
+    "api_endpoint": "api/routers/exercise_template.py",
+    "scheduled_task": "api/tasks/exercise_template.py",
+    "kubernetes_manifests": "kubernetes/exercises/"
+  },
+  "documentation": {
+    "frontend_exercises": "docs/exercises/FRONTEND_EXERCISES.md",
+    "backend_exercises": "docs/exercises/BACKEND_EXERCISES.md",
+    "deployment_exercises": "docs/exercises/DEPLOYMENT_EXERCISES.md"
+  }
+} 

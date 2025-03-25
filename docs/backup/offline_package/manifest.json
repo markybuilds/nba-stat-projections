@@ -1,0 +1,39 @@
+{
+    "package_name": "NBA Stats Projections Offline Demo",
+    "created_at": "2025-03-25 13:35:40",
+    "version": "1.0",
+    "contents": {
+        "documentation": [
+            "DEMO_GUIDE.md",
+            "PRESENTATION_TEMPLATE.md",
+            "PRESENTATION_SLIDES.md",
+            "DEMONSTRATION_SCRIPT.md",
+            "DEMONSTRATION_FAQ.md",
+            "REHEARSAL_PLAN.md",
+            "RECORDING_SETUP.md"
+        ],
+        "scripts": [
+            "setup_demo_env.py",
+            "start_api.py",
+            "start_frontend.py",
+            "validate_demo_env.py"
+        ],
+        "sample_data": [
+            "players.json",
+            "teams.json"
+        ],
+        "screenshots": [
+            "dashboard.png",
+            "players_list.png",
+            "player_detail.png",
+            "teams_list.png",
+            "team_detail.png",
+            "projections.png",
+            "api_endpoints.png",
+            "comparison_tool.png",
+            "settings.png",
+            "analytics.png"
+        ]
+    },
+    "instructions": "See OFFLINE_DEMO_README.md for usage instructions"
+}

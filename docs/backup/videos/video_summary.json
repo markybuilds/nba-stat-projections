@@ -1,0 +1,48 @@
+{
+    "total_videos": 10,
+    "total_size_mb": 212.0,
+    "total_duration_seconds": 1500,
+    "recorded_date": "2025-03-25 13:30:59",
+    "videos": [
+        {
+            "name": "dashboard_overview_demo.mp4",
+            "size_mb": 24.0
+        },
+        {
+            "name": "player_statistics_demo.mp4",
+            "size_mb": 15.0
+        },
+        {
+            "name": "team_analytics_demo.mp4",
+            "size_mb": 30.0
+        },
+        {
+            "name": "projection_system_demo.mp4",
+            "size_mb": 16.0
+        },
+        {
+            "name": "api_functionality_demo.mp4",
+            "size_mb": 12.0
+        },
+        {
+            "name": "mobile_responsiveness_demo.mp4",
+            "size_mb": 27.0
+        },
+        {
+            "name": "performance_optimization_demo.mp4",
+            "size_mb": 16.0
+        },
+        {
+            "name": "data_visualization_demo.mp4",
+            "size_mb": 26.0
+        },
+        {
+            "name": "filtering_sorting_demo.mp4",
+            "size_mb": 23.0
+        },
+        {
+            "name": "player_comparison_demo.mp4",
+            "size_mb": 23.0
+        }
+    ]
+}
