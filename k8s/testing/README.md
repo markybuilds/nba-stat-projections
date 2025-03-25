@@ -7,24 +7,31 @@ This directory contains resources for testing monitoring alerts in the NBA Stats
 ```
 k8s/testing/
 ├── README.md                    # This file
-├── control-all-tests.cmd       # Master control script (Windows)
-├── control-all-tests.sh        # Master control script (Linux)
-├── cpu-test.yaml               # CPU usage test configuration
-├── control-cpu-test.cmd        # CPU test control script (Windows)
-├── control-cpu-test.sh         # CPU test control script (Linux)
-├── error-endpoint.yaml         # Error simulation configuration
-├── generate-errors.cmd         # Error generation script (Windows)
-├── generate-errors.sh          # Error generation script (Linux)
-├── memory-test.yaml            # Memory usage test configuration
-├── control-memory-test.cmd     # Memory test control script (Windows)
-├── control-memory-test.sh      # Memory test control script (Linux)
-├── slow-endpoint.yaml          # Slow response configuration
-├── generate-slow-requests.cmd  # Slow request generation script (Windows)
-├── generate-slow-requests.sh   # Slow request generation script (Linux)
-├── slow-queries.sql            # Slow database query tests
-├── generate-slow-queries.cmd   # Database test script (Windows)
-├── generate-slow-queries.sh    # Database test script (Linux)
-└── validate-tests.cmd          # Test validation script (Windows)
+├── QUICK_REFERENCE.md           # Quick reference guide for common operations
+├── DATABASE_CONFIG.md           # Database configuration guide
+├── SIGN_OFF.md                  # Final verification and sign-off document
+├── HANDOVER.md                  # Comprehensive handover package
+├── test-execution-log.md        # Test execution results and findings
+├── configure-database.cmd       # Database configuration tool
+├── control-all-tests.cmd        # Master control script (Windows)
+├── control-all-tests.sh         # Master control script (Linux)
+├── cpu-test.yaml                # CPU usage test configuration
+├── control-cpu-test.cmd         # CPU test control script (Windows)
+├── control-cpu-test.sh          # CPU test control script (Linux)
+├── error-endpoint.yaml          # Error simulation configuration
+├── generate-errors.cmd          # Error generation script (Windows)
+├── generate-errors.sh           # Error generation script (Linux)
+├── memory-test.yaml             # Memory usage test configuration
+├── control-memory-test.cmd      # Memory test control script (Windows)
+├── control-memory-test.sh       # Memory test control script (Linux)
+├── slow-endpoint.yaml           # Slow response configuration
+├── generate-slow-requests.cmd   # Slow request generation script (Windows)
+├── generate-slow-requests.sh    # Slow request generation script (Linux)
+├── slow-queries.sql             # Slow database query tests
+├── generate-slow-queries.cmd    # Database test script (Windows)
+├── generate-slow-queries.sh     # Database test script (Linux)
+├── validate-tests.cmd           # Test validation script (Windows)
+└── validation-results.txt       # Validation test results
 ```
 
 ## Test Scenarios
@@ -48,6 +55,7 @@ k8s/testing/
 5. **Database Performance Testing**
    - `slow-queries.sql`: SQL scripts for generating slow queries
    - `generate-slow-queries.sh`: Executes database stress tests
+   - `DATABASE_CONFIG.md`: Configuration guide for database testing
 
 ## Test Validation
 
@@ -76,6 +84,13 @@ The validation script:
 3. Reports results with checkmarks (✓) or crosses (✗)
 4. Saves results to validation-results.txt
 
+For database validation, the script:
+1. Checks if all required environment variables are set
+2. Tests database connectivity
+3. Executes a slow query test with a 2-second delay
+4. Verifies query execution time exceeds threshold
+5. Provides detailed error messages if any check fails
+
 Example:
 ```cmd
 # Validate all test types
@@ -83,12 +98,17 @@ validate-tests.cmd all
 
 # Validate specific test type
 validate-tests.cmd errors
+
+# Validate database configuration
+validate-tests.cmd database
 ```
 
 Prerequisites for validation:
 1. All test configurations deployed
 2. Kubernetes cluster accessible
 3. Database connection configured (for database tests)
+   - See `DATABASE_CONFIG.md` for detailed setup instructions
+   - Use `configure-database.cmd` for interactive setup
 4. Required tools installed:
    - curl
    - PowerShell
@@ -127,6 +147,7 @@ Example:
 1. Kubernetes cluster access with sufficient permissions
 2. Prometheus and Alertmanager properly configured
 3. Database access (for database tests)
+   - See `DATABASE_CONFIG.md` for detailed setup instructions
 4. Environment variables set for database connection:
    - `DB_HOST`
    - `DB_PORT`
@@ -159,6 +180,11 @@ Ensure your cluster has sufficient resources:
 
 For detailed testing procedures and alert verification, refer to:
 - `docs/maintenance/monitoring-test-guide.md`
+- `QUICK_REFERENCE.md`: Quick reference for common operations
+- `DATABASE_CONFIG.md`: Database configuration guide
+- `test-execution-log.md`: Test execution results and findings
+- `SIGN_OFF.md`: Final verification and sign-off document
+- `HANDOVER.md`: Comprehensive handover package
 
 ## Contributing
 
@@ -229,4 +255,43 @@ All test scripts are now available in both bash (.sh) and Windows batch (.cmd) v
 
 3. Timing Functions:
    - Uses PowerShell's Measure-Command for accurate timing
-   - Windows-native time formatting for duration tracking 
+   - Windows-native time formatting for duration tracking
+
+## Database Configuration
+
+For database performance testing, use the database configuration tool:
+
+```cmd
+configure-database.cmd
+```
+
+This interactive tool provides the following capabilities:
+1. Set up database environment variables
+2. Test database connectivity
+3. Create test database tables
+4. Run slow query tests
+5. View current configuration
+
+The tool guides you through the configuration process and verifies that the database is properly set up for performance testing.
+
+### Manual Configuration
+
+If you prefer to set up the database manually, you can set the required environment variables:
+
+```cmd
+# Windows Command Prompt
+set DB_HOST=your_database_server
+set DB_PORT=1433
+set DB_NAME=your_database_name
+set DB_USER=your_username
+set DB_PASSWORD=your_password
+
+# PowerShell
+$env:DB_HOST="your_database_server"
+$env:DB_PORT="1433"
+$env:DB_NAME="your_database_name"
+$env:DB_USER="your_username"
+$env:DB_PASSWORD="your_password"
+```
+
+See `DATABASE_CONFIG.md` for detailed database configuration instructions. 
