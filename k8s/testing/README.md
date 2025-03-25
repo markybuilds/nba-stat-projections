@@ -7,17 +7,24 @@ This directory contains resources for testing monitoring alerts in the NBA Stats
 ```
 k8s/testing/
 ├── README.md                    # This file
-├── control-all-tests.sh        # Master control script
+├── control-all-tests.cmd       # Master control script (Windows)
+├── control-all-tests.sh        # Master control script (Linux)
 ├── cpu-test.yaml               # CPU usage test configuration
-├── control-cpu-test.sh         # CPU test control script
+├── control-cpu-test.cmd        # CPU test control script (Windows)
+├── control-cpu-test.sh         # CPU test control script (Linux)
 ├── error-endpoint.yaml         # Error simulation configuration
-├── generate-errors.sh          # Error generation script
+├── generate-errors.cmd         # Error generation script (Windows)
+├── generate-errors.sh          # Error generation script (Linux)
 ├── memory-test.yaml            # Memory usage test configuration
-├── control-memory-test.sh      # Memory test control script
+├── control-memory-test.cmd     # Memory test control script (Windows)
+├── control-memory-test.sh      # Memory test control script (Linux)
 ├── slow-endpoint.yaml          # Slow response configuration
-├── generate-slow-requests.sh   # Slow request generation script
+├── generate-slow-requests.cmd  # Slow request generation script (Windows)
+├── generate-slow-requests.sh   # Slow request generation script (Linux)
 ├── slow-queries.sql            # Slow database query tests
-└── generate-slow-queries.sh    # Database test script
+├── generate-slow-queries.cmd   # Database test script (Windows)
+├── generate-slow-queries.sh    # Database test script (Linux)
+└── validate-tests.cmd          # Test validation script (Windows)
 ```
 
 ## Test Scenarios
@@ -41,6 +48,51 @@ k8s/testing/
 5. **Database Performance Testing**
    - `slow-queries.sql`: SQL scripts for generating slow queries
    - `generate-slow-queries.sh`: Executes database stress tests
+
+## Test Validation
+
+Use the validation script to verify test configurations and alert triggers:
+
+```cmd
+validate-tests.cmd [test_type]
+```
+
+Available test types:
+- `errors`: Validate error generation
+- `slow`: Validate slow response simulation
+- `memory`: Validate memory usage tests
+- `cpu`: Validate CPU usage tests
+- `database`: Validate database performance tests
+- `all`: Run all validations (default)
+
+The validation script:
+1. Executes each test type
+2. Verifies expected behavior:
+   - Error tests return 500 status
+   - Slow responses exceed 1-second threshold
+   - Memory tests consume expected resources
+   - CPU tests generate sufficient load
+   - Database queries show expected slowdown
+3. Reports results with checkmarks (✓) or crosses (✗)
+4. Saves results to validation-results.txt
+
+Example:
+```cmd
+# Validate all test types
+validate-tests.cmd all
+
+# Validate specific test type
+validate-tests.cmd errors
+```
+
+Prerequisites for validation:
+1. All test configurations deployed
+2. Kubernetes cluster accessible
+3. Database connection configured (for database tests)
+4. Required tools installed:
+   - curl
+   - PowerShell
+   - sqlcmd (for database tests)
 
 ## Usage
 
