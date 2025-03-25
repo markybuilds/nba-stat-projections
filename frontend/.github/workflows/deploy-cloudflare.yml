@@ -1,0 +1,78 @@
+name: Deploy to Cloudflare Pages
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy to Cloudflare Pages
+    runs-on: ubuntu-latest
+    
+    # Ensure correct Node.js version
+    strategy:
+      matrix:
+        node-version: [18]
+        
+    steps:
+      # Checkout the repository
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      # Setup Node.js
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
+      
+      # Install dependencies
+      - name: Install dependencies
+        run: cd frontend && npm ci
+      
+      # Build the application
+      - name: Build
+        run: cd frontend && npm run build
+        env:
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_WEBSOCKET_URL: ${{ secrets.NEXT_PUBLIC_WEBSOCKET_URL }}
+          NEXT_PUBLIC_CDN_ENABLED: 'true'
+          NEXT_PUBLIC_CDN_URL: ${{ secrets.NEXT_PUBLIC_CDN_URL }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      
+      # Publish to Cloudflare Pages (Production environment for main branch)
+      - name: Publish to Cloudflare Pages (Production)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: nba-stat-projections
+          directory: frontend/.next
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
+      
+      # Publish to Cloudflare Pages (Preview environment for Pull Requests)
+      - name: Publish to Cloudflare Pages (Preview)
+        if: github.event_name == 'pull_request'
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: nba-stat-projections
+          directory: frontend/.next
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.head_ref }}
+      
+      # Run CDN verification after deployment (only for production)
+      - name: Verify CDN Configuration
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          cd frontend && npm run verify-cdn ${{ secrets.DEPLOYED_URL }}
+          echo "CDN verification completed. See report for details." 

@@ -1,0 +1,76 @@
+# Cloudflare Pages configuration for NBA Stats Projections
+# Documentation: https://developers.cloudflare.com/pages/
+
+name = "nba-stat-projections"
+compatibility_date = "2024-04-09"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = true
+
+# Build configuration
+[build]
+  command = "npm run build"
+  output_directory = ".next"
+  
+# Environment variables
+[vars]
+  # Add your environment variables here (non-sensitive)
+  NEXT_PUBLIC_CDN_ENABLED = "true"
+  NODE_VERSION = "18"
+
+# Sensitive environment variables should be added through the Cloudflare dashboard
+
+# Specify routes with different caching behaviors
+[[routes]]
+  pattern = "/api/*"
+  script = "default"
+  custom_domain = false
+  [routes.cache_settings]
+    cache_everything = false
+    browser_ttl = 60
+    edge_ttl = 300
+    bypass_cache = false
+    respect_headers = true
+
+[[routes]]
+  pattern = "/_next/static/*"
+  script = "default"
+  custom_domain = false
+  [routes.cache_settings]
+    cache_everything = true
+    browser_ttl = 31536000 # 1 year
+    edge_ttl = 31536000
+    bypass_cache = false
+    respect_headers = false
+
+[[routes]]
+  pattern = "/images/*"
+  script = "default"
+  custom_domain = false
+  [routes.cache_settings]
+    cache_everything = true
+    browser_ttl = 86400 # 1 day
+    edge_ttl = 604800 # 1 week
+    bypass_cache = false
+    respect_headers = false
+
+[[routes]]
+  pattern = "/fonts/*"
+  script = "default"
+  custom_domain = false
+  [routes.cache_settings]
+    cache_everything = true
+    browser_ttl = 31536000 # 1 year
+    edge_ttl = 31536000
+    bypass_cache = false
+    respect_headers = false
+
+# Configure KV namespace for additional caching if needed
+# [kv_namespaces]
+# CACHE = ""
+
+# Configure image optimization
+[site]
+  [site.image_resolution]
+    width = 1920
+    height = 1080
+    fit = "cover" 

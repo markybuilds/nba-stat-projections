@@ -55,44 +55,61 @@ class SchedulerService:
             # Schedule database optimization jobs
             if "refresh_materialized_views" not in self.jobs:
                 self.schedule_materialized_view_refresh()
+                
+            # Schedule performance log cleanup job
+            if "cleanup_performance_logs" not in self.jobs:
+                self.schedule_performance_log_cleanup()
+                
+            logger.info(f"Scheduler started with {len(self.jobs)} jobs")
+        else:
+            logger.info("Scheduler already running")
     
-    def shutdown(self):
-        """Shutdown the scheduler."""
+    def stop(self):
+        """Stop the scheduler if it's running."""
         if self.scheduler.running:
             self.scheduler.shutdown()
-            logger.info("Scheduler shut down")
+            logger.info("Scheduler stopped")
+        else:
+            logger.info("Scheduler already stopped")
     
-    def schedule_daily_updates(self, 
-                               hour: int = 1, 
-                               minute: int = 0,
-                               update_func: Optional[Callable] = None):
+    def schedule_job(
+        self,
+        func: Callable,
+        trigger: Any,
+        job_id: str,
+        job_name: str,
+        replace_existing: bool = True,
+        **kwargs
+    ):
         """
-        Schedule the daily data update job.
+        Schedule a job with the given function and trigger.
         
         Args:
-            hour: Hour of the day to run the update (default: 1 AM)
-            minute: Minute of the hour to run the update (default: 0)
-            update_func: Optional custom update function to use instead of default
+            func: Function to be executed
+            trigger: APScheduler trigger object
+            job_id: Unique identifier for the job
+            job_name: Human-readable name for the job
+            replace_existing: Whether to replace an existing job with the same ID
+            **kwargs: Additional arguments to pass to add_job
+        
+        Returns:
+            Job: The scheduled job
         """
-        # Import here to avoid circular imports
-        from app.scripts.update_daily_data import update_daily_data
-        
-        func = update_func or update_daily_data
-        
         job = self.scheduler.add_job(
-            self._wrap_job(func, "daily_update"),
-            trigger=CronTrigger(hour=hour, minute=minute),
-            id="daily_update",
-            name="NBA Daily Data Update",
-            replace_existing=True
+            func=self._wrap_job(func, job_id),
+            trigger=trigger,
+            id=job_id,
+            name=job_name,
+            replace_existing=replace_existing,
+            **kwargs
         )
         
-        self.jobs["daily_update"] = job
-        logger.info(f"Scheduled daily update job to run at {hour:02d}:{minute:02d}")
+        self.jobs[job_id] = job
+        logger.info(f"Scheduled job: {job_id} - {job_name}")
         
         # Update metrics
         from app.services.metrics_service import metrics_service
-        metrics_service.update_scheduler_next_run("daily_update", job.next_run_time)
+        metrics_service.update_scheduler_next_run(job_id, job.next_run_time)
         
         return job
     
@@ -146,201 +163,161 @@ class SchedulerService:
         metrics_service.update_scheduler_next_run("refresh_materialized_views", job.next_run_time)
         
         return job
-    
-    def schedule_notification_digests(self, 
-                                      daily_hour: int = 8, 
-                                      daily_minute: int = 0,
-                                      weekly_day: int = 0,  # 0 = Monday
-                                      weekly_hour: int = 9,
-                                      weekly_minute: int = 0):
+
+    def schedule_performance_log_cleanup(self, days_to_keep: int = 30, hour: int = 3, minute: int = 0):
         """
-        Schedule jobs to send notification digests.
+        Schedule job to clean up old query performance logs.
         
         Args:
-            daily_hour: Hour of the day to send daily digests (default: 8 AM)
-            daily_minute: Minute of the hour for daily digests (default: 0)
-            weekly_day: Day of the week for weekly digests (0-6, where 0=Monday, default: Monday)
-            weekly_hour: Hour of the day for weekly digests (default: 9 AM)
-            weekly_minute: Minute of the hour for weekly digests (default: 0)
+            days_to_keep: Number of days of logs to keep (default: 30)
+            hour: Hour of the day to run the cleanup (default: 3 AM)
+            minute: Minute of the hour to run the cleanup (default: 0)
         """
-        from app.services.notification_digest_service import notification_digest_service
+        async def cleanup_logs():
+            """Cleanup old query performance logs"""
+            try:
+                # Get Supabase client
+                from app.utils.database import get_supabase_client
+                supabase = get_supabase_client()
+                
+                # Call the cleanup function
+                result = await supabase.rpc('cleanup_performance_logs', {"retention_days": days_to_keep}).execute()
+                
+                logger.info(f"Successfully cleaned up performance logs older than {days_to_keep} days")
+                return {"success": True, "message": "Performance logs cleaned up successfully"}
+            except Exception as e:
+                logger.error(f"Failed to clean up performance logs: {str(e)}")
+                return {"success": False, "message": f"Error in performance log cleanup: {str(e)}"}
         
-        # Schedule daily digest job
-        daily_job = self.scheduler.add_job(
-            self._wrap_job(notification_digest_service.send_daily_digests, "notification_daily_digest"),
-            trigger=CronTrigger(hour=daily_hour, minute=daily_minute),
-            id="notification_daily_digest",
-            name="Daily Notification Digest",
-            replace_existing=True
-        )
-        
-        self.jobs["notification_daily_digest"] = daily_job
-        logger.info(f"Scheduled daily notification digest job to run at {daily_hour:02d}:{daily_minute:02d}")
-        
-        # Schedule weekly digest job
-        weekly_job = self.scheduler.add_job(
-            self._wrap_job(notification_digest_service.send_weekly_digests, "notification_weekly_digest"),
-            trigger=CronTrigger(day_of_week=weekly_day, hour=weekly_hour, minute=weekly_minute),
-            id="notification_weekly_digest",
-            name="Weekly Notification Digest",
-            replace_existing=True
-        )
-        
-        self.jobs["notification_weekly_digest"] = weekly_job
-        logger.info(f"Scheduled weekly notification digest job to run at {weekly_hour:02d}:{weekly_minute:02d} on day {weekly_day}")
-        
-        # Update metrics
-        from app.services.metrics_service import metrics_service
-        metrics_service.update_scheduler_next_run("notification_daily_digest", daily_job.next_run_time)
-        metrics_service.update_scheduler_next_run("notification_weekly_digest", weekly_job.next_run_time)
-        
-        return {
-            "daily": daily_job,
-            "weekly": weekly_job
-        }
-    
-    def schedule_custom_job(self, 
-                            func: Callable, 
-                            trigger: Any, 
-                            job_id: str, 
-                            job_name: str,
-                            **kwargs):
-        """
-        Schedule a custom job with the specified trigger.
-        
-        Args:
-            func: Function to run
-            trigger: APScheduler trigger to use
-            job_id: Unique identifier for the job
-            job_name: Name for the job
-            **kwargs: Additional arguments to pass to the scheduler
-        """
         job = self.scheduler.add_job(
-            self._wrap_job(func, job_id),
-            trigger=trigger,
-            id=job_id,
-            name=job_name,
-            replace_existing=True,
-            **kwargs
+            self._wrap_job(cleanup_logs, "cleanup_performance_logs"),
+            trigger=CronTrigger(hour=hour, minute=minute),
+            id="cleanup_performance_logs",
+            name="Cleanup Query Performance Logs",
+            replace_existing=True
         )
         
-        self.jobs[job_id] = job
-        logger.info(f"Scheduled custom job: {job_name} [{job_id}]")
+        self.jobs["cleanup_performance_logs"] = job
+        logger.info(f"Scheduled performance log cleanup job to run at {hour:02d}:{minute:02d}, keeping {days_to_keep} days of logs")
         
         # Update metrics
         from app.services.metrics_service import metrics_service
-        metrics_service.update_scheduler_next_run(job_id, job.next_run_time)
+        metrics_service.update_scheduler_next_run("cleanup_performance_logs", job.next_run_time)
         
         return job
     
-    def remove_job(self, job_id: str):
+    def schedule_daily_updates(self, hour: int = 5, minute: int = 0):
         """
-        Remove a scheduled job by ID.
+        Schedule the daily data update job.
         
         Args:
-            job_id: ID of the job to remove
+            hour: Hour of the day to run the update (default: 5 AM)
+            minute: Minute of the hour to run the update (default: 0)
         """
-        if job_id in self.jobs:
-            self.scheduler.remove_job(job_id)
-            del self.jobs[job_id]
-            logger.info(f"Removed job: {job_id}")
+        from app.scripts.daily_update import run_daily_update
+        
+        job = self.scheduler.add_job(
+            self._wrap_job(run_daily_update, "daily_update"),
+            trigger=CronTrigger(hour=hour, minute=minute),
+            id="daily_update",
+            name="Daily Data Update",
+            replace_existing=True
+        )
+        
+        self.jobs["daily_update"] = job
+        logger.info(f"Scheduled daily update job to run at {hour:02d}:{minute:02d}")
+        
+        # Update metrics
+        from app.services.metrics_service import metrics_service
+        metrics_service.update_scheduler_next_run("daily_update", job.next_run_time)
+        
+        return job
     
-    def get_job_info(self, job_id: str = None):
+    def get_job_info(self) -> List[Dict[str, Any]]:
         """
-        Get information about scheduled jobs.
+        Get information about all scheduled jobs.
         
-        Args:
-            job_id: Optional ID of a specific job to get info for
-            
         Returns:
-            List of dictionaries with job information
+            List[Dict[str, Any]]: List of dictionaries with job information
         """
-        if job_id and job_id in self.jobs:
-            job = self.jobs[job_id]
-            return [{
+        job_info = []
+        
+        for job in self.scheduler.get_jobs():
+            next_run_time = job.next_run_time.isoformat() if job.next_run_time else None
+            
+            job_info.append({
                 "id": job.id,
                 "name": job.name,
-                "next_run_time": job.next_run_time.isoformat() if job.next_run_time else None,
-                "trigger": str(job.trigger)
-            }]
+                "next_run_time": next_run_time,
+                "trigger": str(job.trigger),
+                "active": job.next_run_time is not None
+            })
         
-        return [{
-            "id": job.id,
-            "name": job.name,
-            "next_run_time": job.next_run_time.isoformat() if job.next_run_time else None,
-            "trigger": str(job.trigger)
-        } for job in self.scheduler.get_jobs()]
+        return job_info
     
     def _wrap_job(self, func: Callable, job_id: str) -> Callable:
-        """
-        Wrap a job function to add metrics and error handling.
-        
-        Args:
-            func: The original job function
-            job_id: ID of the job
-            
-        Returns:
-            Wrapped function with metrics and error handling
-        """
-        async def wrapped_job(*args, **kwargs):
-            # Import here to avoid circular imports
+        """Wrap a job function with error handling and logging."""
+        async def wrapper(*args, **kwargs):
+            start_time = time.time()
             from app.services.metrics_service import metrics_service
             from app.services.alerts_service import alerts_service
             
-            start_time = time.time()
-            
             try:
-                logger.info(f"Starting job: {job_id}")
-                result = await func(*args, **kwargs)
+                # Update job start metric
+                metrics_service.record_job_start(job_id)
                 
-                # Record success in metrics
-                metrics_service.track_scheduler_job(job_id=job_id, start_time=start_time, status="success")
+                logger.info(f"Running job {job_id}")
                 
-                # Update next run time in metrics
-                job = self.jobs.get(job_id)
-                if job:
-                    metrics_service.update_scheduler_next_run(job_id, job.next_run_time)
+                # Execute job
+                if asyncio.iscoroutinefunction(func):
+                    result = await func(*args, **kwargs)
+                else:
+                    result = func(*args, **kwargs)
                 
-                logger.info(f"Job {job_id} completed successfully")
+                # Update job success metric
+                execution_time = time.time() - start_time
+                metrics_service.record_job_completion(job_id, True, execution_time)
+                
+                logger.info(f"Job {job_id} completed successfully in {execution_time:.2f}s")
                 return result
-            
+                
             except Exception as e:
-                # Record failure in metrics
-                metrics_service.track_scheduler_job(job_id=job_id, start_time=start_time, status="failure")
-                metrics_service.track_error(error_type="job_execution", service=f"scheduler_{job_id}")
+                # Update job failure metric
+                execution_time = time.time() - start_time
+                metrics_service.record_job_completion(job_id, False, execution_time)
+                
+                # Log the error
+                logger.error(f"Error in job {job_id}: {str(e)}")
                 
                 # Send alert
-                error_message = f"Job {job_id} failed: {str(e)}"
-                logger.error(error_message)
-                
-                asyncio.create_task(alerts_service.send_alert(
-                    title=f"Scheduled Job Failed: {job_id}",
-                    message=error_message,
-                    level="ERROR",
-                    data={
-                        "job_id": job_id,
-                        "error": str(e),
-                        "traceback": str(sys.exc_info()),
-                        "duration_seconds": f"{time.time() - start_time:.2f}"
-                    }
-                ))
+                try:
+                    await alerts_service.send_alert(
+                        title=f"Job {job_id} Failed",
+                        message=f"Error in scheduled job {job_id}: {str(e)}",
+                        level="ERROR",
+                        data={
+                            "job_id": job_id,
+                            "error": str(e),
+                            "traceback": str(sys.exc_info())
+                        }
+                    )
+                except Exception as alert_err:
+                    logger.error(f"Failed to send alert for job failure: {str(alert_err)}")
                 
                 # Re-raise the exception
                 raise
-        
-        return wrapped_job
+                
+        return wrapper
     
     async def _health_check(self):
         """
-        Perform health checks on the scheduler and its jobs.
+        Perform a health check on the scheduler and its jobs.
         """
-        logger.info("Running scheduler health check")
-        
-        # Import here to avoid circular imports
         from app.services.metrics_service import metrics_service
         from app.services.alerts_service import alerts_service
         
-        # Check if the scheduler is running
+        logger.info("Performing scheduler health check")
+        
         if not self.scheduler.running:
             logger.error("Scheduler is not running")
             await alerts_service.send_alert(
@@ -350,7 +327,7 @@ class SchedulerService:
             )
             return
         
-        # Check each job
+        # Check all jobs
         for job_id, job in self.jobs.items():
             # Skip the health check job itself
             if job_id == "health_check":
@@ -385,8 +362,33 @@ class SchedulerService:
         await alerts_service.check_scheduler_health()
         await alerts_service.check_data_freshness()
         
+        # Check database performance metrics (new)
+        try:
+            from app.utils.database import get_supabase_client
+            supabase = get_supabase_client()
+            
+            # Get slow query stats for the last 24 hours
+            result = await supabase.rpc(
+                'get_query_performance_stats', 
+                {"start_time": (datetime.now() - timedelta(hours=24)).isoformat()}
+            ).execute()
+            
+            slow_queries = [q for q in result.data if q.get('slow_percentage', 0) > 20]
+            
+            if slow_queries:
+                # Alert on slow queries
+                await alerts_service.send_alert(
+                    title="Slow Database Queries Detected",
+                    message=f"Found {len(slow_queries)} query types with high slow query percentage",
+                    level="WARNING",
+                    data={
+                        "slow_queries": slow_queries
+                    }
+                )
+        except Exception as e:
+            logger.error(f"Error checking database performance metrics: {str(e)}")
+            
         logger.info("Scheduler health check completed")
-
-
-# Create the singleton instance
+        
+    # Singleton instance
 scheduler_service = SchedulerService() 

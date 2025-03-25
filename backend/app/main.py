@@ -35,6 +35,14 @@ async def lifespan(app: FastAPI):
     scheduler_service.start()
     scheduler_service.schedule_daily_updates(hour=settings.UPDATE_HOUR, minute=settings.UPDATE_MINUTE)
     
+    # Schedule materialized view refresh
+    scheduler_service.schedule_materialized_view_refresh(hour=2, minute=0)
+    logger.info("Materialized view refresh job scheduled")
+    
+    # Schedule performance log cleanup
+    scheduler_service.schedule_performance_log_cleanup(days_to_keep=30, hour=3, minute=0)
+    logger.info("Performance log cleanup job scheduled")
+    
     # Schedule notification digests
     if settings.SMTP_SERVER and settings.SMTP_FROM_EMAIL:
         scheduler_service.schedule_notification_digests(
@@ -60,7 +68,7 @@ async def lifespan(app: FastAPI):
     logger.info("Application shutting down...")
     
     # Shutdown the scheduler
-    scheduler_service.shutdown()
+    scheduler_service.stop()
     
     logger.info("Application shutdown complete")
 

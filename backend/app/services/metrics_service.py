@@ -9,6 +9,8 @@ import logging
 import time
 from typing import Dict, List, Any, Optional
 from datetime import datetime
+import asyncio
+from datetime import timedelta
 
 from prometheus_client import Counter, Gauge, Histogram, Summary, push_to_gateway
 from prometheus_client import generate_latest
@@ -150,9 +152,9 @@ class MetricsService:
             error_type = "client_error" if status_code < 500 else "server_error"
             ERROR_COUNT.labels(error_type=error_type, service="api").inc()
     
-    def track_error(self, error_type: str, service: str = "api"):
+    def track_error(self, error_type: str, service: str = "app"):
         """
-        Track an error.
+        Track an error occurrence.
         
         Args:
             error_type: Type of error
@@ -161,7 +163,15 @@ class MetricsService:
         if not settings.ENABLE_METRICS:
             return
             
-        ERROR_COUNT.labels(error_type=error_type, service=service).inc()
+        # Increment error counter
+        if error_type not in self.error_counters:
+            self.error_counters[error_type] = Counter(
+                f"app_error_{error_type}_total",
+                f"Total number of {error_type} errors",
+                ["service"]
+            )
+            
+        self.error_counters[error_type].labels(service=service).inc()
     
     def track_websocket_connection(self, connected: bool = True):
         """
@@ -361,6 +371,183 @@ class MetricsService:
         
         except Exception as e:
             logger.error(f"Error updating scheduler metrics: {e}")
+
+    def track_materialized_view_refresh(self, view_name: str, duration: float, success: bool):
+        """
+        Track a materialized view refresh operation.
+        
+        Args:
+            view_name: Name of the materialized view
+            duration: Duration of the refresh in seconds
+            success: Whether the refresh was successful
+        """
+        if not settings.ENABLE_METRICS:
+            return
+            
+        # Track refresh count
+        if 'view_refresh_count' not in self.counters:
+            self.counters['view_refresh_count'] = Counter(
+                'app_materialized_view_refresh_total',
+                'Total number of materialized view refresh operations',
+                ['view_name', 'status']
+            )
+            
+        status = 'success' if success else 'failure'
+        self.counters['view_refresh_count'].labels(view_name=view_name, status=status).inc()
+        
+        # Track refresh duration
+        if 'view_refresh_duration' not in self.histograms:
+            self.histograms['view_refresh_duration'] = Histogram(
+                'app_materialized_view_refresh_duration_seconds',
+                'Duration of materialized view refresh operations in seconds',
+                ['view_name'],
+                buckets=(0.1, 0.5, 1.0, 2.0, 5.0, 10.0, 30.0, 60.0, 120.0)
+            )
+            
+        if success and duration > 0:
+            self.histograms['view_refresh_duration'].labels(view_name=view_name).observe(duration)
+            
+        # Update last refresh timestamp gauge
+        if 'view_last_refresh' not in self.gauges:
+            self.gauges['view_last_refresh'] = Gauge(
+                'app_materialized_view_last_refresh_timestamp',
+                'Timestamp of the last successful materialized view refresh',
+                ['view_name']
+            )
+            
+        if success:
+            self.gauges['view_last_refresh'].labels(view_name=view_name).set_to_current_time()
+            
+    def track_materialized_view_refresh_operation(self, duration: float, success_count: int, error_count: int):
+        """
+        Track a complete materialized view refresh operation with multiple views.
+        
+        Args:
+            duration: Total duration of the operation in seconds
+            success_count: Number of views successfully refreshed
+            error_count: Number of views that failed to refresh
+        """
+        if not settings.ENABLE_METRICS:
+            return
+            
+        # Track operation count
+        if 'view_refresh_op_count' not in self.counters:
+            self.counters['view_refresh_op_count'] = Counter(
+                'app_materialized_view_refresh_operation_total',
+                'Total number of materialized view refresh operations',
+                ['status']
+            )
+            
+        status = 'success' if error_count == 0 else 'partial' if success_count > 0 else 'failure'
+        self.counters['view_refresh_op_count'].labels(status=status).inc()
+        
+        # Track operation duration
+        if 'view_refresh_op_duration' not in self.histograms:
+            self.histograms['view_refresh_op_duration'] = Histogram(
+                'app_materialized_view_refresh_operation_duration_seconds',
+                'Duration of complete materialized view refresh operations in seconds',
+                buckets=(1.0, 5.0, 10.0, 30.0, 60.0, 120.0, 300.0, 600.0)
+            )
+            
+        if duration > 0:
+            self.histograms['view_refresh_op_duration'].observe(duration)
+            
+        # Track success/error counts
+        if 'view_refresh_success_count' not in self.gauges:
+            self.gauges['view_refresh_success_count'] = Gauge(
+                'app_materialized_view_refresh_success_count',
+                'Number of views successfully refreshed in the last operation'
+            )
+            
+        if 'view_refresh_error_count' not in self.gauges:
+            self.gauges['view_refresh_error_count'] = Gauge(
+                'app_materialized_view_refresh_error_count',
+                'Number of views that failed to refresh in the last operation'
+            )
+            
+        self.gauges['view_refresh_success_count'].set(success_count)
+        self.gauges['view_refresh_error_count'].set(error_count)
+        
+        # Update last operation timestamp gauge
+        if 'view_refresh_op_last' not in self.gauges:
+            self.gauges['view_refresh_op_last'] = Gauge(
+                'app_materialized_view_refresh_operation_last_timestamp',
+                'Timestamp of the last materialized view refresh operation'
+            )
+            
+        self.gauges['view_refresh_op_last'].set_to_current_time()
+        
+    def track_query_performance(self, query_name: str, execution_time: float, is_slow: bool = False):
+        """
+        Track database query performance.
+        
+        Args:
+            query_name: Name or identifier of the query
+            execution_time: Execution time in seconds
+            is_slow: Whether the query is considered slow
+        """
+        if not settings.ENABLE_METRICS:
+            return
+            
+        # Track query execution count
+        if 'query_count' not in self.counters:
+            self.counters['query_count'] = Counter(
+                'app_db_query_total',
+                'Total number of database queries',
+                ['query_name', 'is_slow']
+            )
+            
+        self.counters['query_count'].labels(
+            query_name=query_name, 
+            is_slow=str(is_slow).lower()
+        ).inc()
+        
+        # Track query execution time
+        if 'query_duration' not in self.histograms:
+            self.histograms['query_duration'] = Histogram(
+                'app_db_query_duration_seconds',
+                'Duration of database queries in seconds',
+                ['query_name'],
+                buckets=(0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1.0, 5.0, 10.0)
+            )
+            
+        self.histograms['query_duration'].labels(query_name=query_name).observe(execution_time)
+        
+        # Track slow query percentage
+        if 'slow_query_ratio' not in self.gauges:
+            self.gauges['slow_query_ratio'] = Gauge(
+                'app_db_slow_query_ratio',
+                'Ratio of slow queries to total queries (0-1)',
+                ['query_name']
+            )
+            
+        # Update the gauge periodically (not every time to avoid excessive updates)
+        # We'll use a pseudo-random approach based on the current time
+        if hash(f"{query_name}{time.time()}") % 10 == 0:  # ~10% of the time
+            try:
+                # Get slow query stats from the database
+                from app.utils.database import get_supabase_client
+                
+                async def update_slow_query_gauge():
+                    supabase = get_supabase_client()
+                    result = await supabase.rpc(
+                        'get_query_performance_stats',
+                        {
+                            "start_time": (datetime.now() - timedelta(hours=1)).isoformat(),
+                            "end_time": datetime.now().isoformat()
+                        }
+                    ).execute()
+                    
+                    for stat in result.data:
+                        if stat.get('query_name') == query_name:
+                            slow_pct = stat.get('slow_percentage', 0)
+                            self.gauges['slow_query_ratio'].labels(query_name=query_name).set(slow_pct / 100.0)
+                            break
+                
+                # Execute in background
+                asyncio.create_task(update_slow_query_gauge())
+            except Exception:
+                pass  # Don't fail if we can't update the gauge
 
 
 # Create the singleton instance

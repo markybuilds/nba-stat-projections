@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "analyze": "cross-env ANALYZE=true next build"
+    "analyze": "cross-env ANALYZE=true next build",
+    "verify-cdn": "node scripts/verify-cdn.js"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.3",
@@ -34,6 +35,7 @@
     "tw-animate-css": "^1.2.4"
   },
   "devDependencies": {
+    "@cloudflare/next-on-pages": "^1.9.1",
     "@eslint/eslintrc": "^3",
     "@next/bundle-analyzer": "^15.2.4",
     "@tailwindcss/postcss": "^4",
