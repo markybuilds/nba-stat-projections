@@ -1,0 +1,193 @@
+name: Playwright Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 0 * * *'  # Run daily at midnight UTC
+
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+      
+    - name: Create test environment file
+      run: |
+        echo "NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}" > .env.test
+        echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" >> .env.test
+        echo "SUPABASE_SERVICE_ROLE_KEY=${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" >> .env.test
+        echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env.test
+        
+    - name: Run Playwright tests
+      run: npm run test
+      
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: playwright-report
+        path: |
+          playwright-report/
+          test-results/
+        retention-days: 30
+        
+    - name: Generate test summary
+      if: always()
+      run: |
+        echo "## Test Results Summary" >> $GITHUB_STEP_SUMMARY
+        echo "* Total Tests: $(grep -r 'test' test-results | wc -l)" >> $GITHUB_STEP_SUMMARY
+        echo "* Passed: $(grep -r 'passed' test-results | wc -l)" >> $GITHUB_STEP_SUMMARY
+        echo "* Failed: $(grep -r 'failed' test-results | wc -l)" >> $GITHUB_STEP_SUMMARY
+        
+    - name: Check test failures
+      if: failure()
+      run: |
+        echo "::error::Playwright tests failed. Check the test report for details."
+        exit 1
+
+  accessibility:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+      
+    - name: Run accessibility tests
+      run: npm run test:accessibility
+      
+    - name: Upload accessibility report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: accessibility-report
+        path: accessibility-report/
+        retention-days: 30
+
+  performance:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+      
+    - name: Run performance tests
+      run: npm run test:performance
+      
+    - name: Upload performance report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: performance-report
+        path: performance-report/
+        retention-days: 30
+        
+    - name: Check performance budgets
+      run: |
+        if grep -q "PERFORMANCE_BUDGET_EXCEEDED" performance-report/summary.txt; then
+          echo "::warning::Performance budgets exceeded. Check the performance report for details."
+        fi
+
+  mobile:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+      
+    - name: Run mobile tests
+      run: npm run test:mobile
+      
+    - name: Upload mobile test report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: mobile-report
+        path: mobile-report/
+        retention-days: 30
+
+  notify:
+    needs: [test, accessibility, performance, mobile]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+    - name: Send notification
+      if: failure()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const { repo, owner } = context.repo;
+          const run_id = context.runId;
+          
+          const message = `
+          🚨 Test Suite Failure Alert 🚨
+          
+          Workflow: ${context.workflow}
+          Run ID: ${run_id}
+          
+          Check the detailed report here:
+          https://github.com/${owner}/${repo}/actions/runs/${run_id}
+          `;
+          
+          await github.rest.issues.create({
+            owner,
+            repo,
+            title: `Test Suite Failure - ${new Date().toISOString()}`,
+            body: message,
+            labels: ['test-failure', 'needs-attention']
+          }); 

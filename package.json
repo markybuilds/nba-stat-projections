@@ -1,0 +1,45 @@
+{
+  "name": "nba-stat-projections",
+  "version": "1.0.0",
+  "description": "NBA Statistics and Projections System",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "test:headed": "playwright test --headed",
+    "test:mobile": "playwright test mobile.spec.ts",
+    "test:accessibility": "playwright test accessibility.spec.ts",
+    "test:performance": "playwright test performance.spec.ts",
+    "test:auth": "playwright test auth.spec.ts",
+    "test:dashboard": "playwright test dashboard.spec.ts",
+    "test:games": "playwright test games.spec.ts",
+    "test:settings": "playwright test settings.spec.ts",
+    "test:api": "playwright test api.spec.ts",
+    "test:visual": "playwright test visual.spec.ts",
+    "test:visual:update": "playwright test visual.spec.ts --update-snapshots",
+    "test:report": "playwright show-report",
+    "test:update-snapshots": "playwright test --update-snapshots",
+    "test:codegen": "playwright codegen"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0",
+    "chart.js": "^4.4.0",
+    "next": "^14.0.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "typescript": "^5.3.2"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.8.1",
+    "@playwright/test": "^1.40.0",
+    "@types/node": "^20.10.0",
+    "@types/react": "^18.2.39",
+    "@types/react-dom": "^18.2.17",
+    "eslint": "^8.54.0",
+    "eslint-config-next": "^14.0.3",
+    "prettier": "^3.1.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+} 
