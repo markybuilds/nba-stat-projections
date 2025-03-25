@@ -12,6 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Github, Mail } from 'lucide-react';
+import GoogleIcon from '@/components/icons/google-icon';
 
 export default function SignupForm() {
   const [email, setEmail] = useState('');
@@ -21,7 +22,7 @@ export default function SignupForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const { signUpWithEmail, signInWithOAuth } = useAuth();
+  const { signUpWithEmailConfirmation, signInWithOAuth } = useAuth();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -55,8 +56,8 @@ export default function SignupForm() {
       return;
     }
 
-    // Submit form
-    const result = await signUpWithEmail(email, password);
+    // Submit form with email verification
+    const result = await signUpWithEmailConfirmation(email, password);
 
     if (!result.success) {
       setError(result.error || 'Failed to create account');
@@ -64,8 +65,8 @@ export default function SignupForm() {
       return;
     }
 
-    // Show success message
-    setSuccess('Account created successfully. Please check your email to confirm your account.');
+    // Show success message with verification info
+    setSuccess('Account created successfully. Please check your email to verify your account before logging in.');
     setIsLoading(false);
   };
 
@@ -201,17 +202,17 @@ export default function SignupForm() {
                 disabled={isLoading}
               >
                 <Github className="mr-2 h-4 w-4" />
-                Sign up with GitHub
+                Continue with GitHub
               </Button>
 
               <Button
                 variant="outline"
-                className="w-full"
+                className="w-full flex bg-white border-gray-300 hover:bg-gray-50"
                 onClick={() => handleOAuthSignup('google')}
                 disabled={isLoading}
               >
-                <Mail className="mr-2 h-4 w-4" />
-                Sign up with Google
+                <GoogleIcon className="mr-2 h-4 w-4" />
+                Continue with Google
               </Button>
             </div>
           </div>

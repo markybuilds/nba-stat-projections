@@ -12,6 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/components/ui/use-toast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Github, Mail } from 'lucide-react';
+import GoogleIcon from '@/components/icons/google-icon';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
@@ -138,17 +139,17 @@ export default function LoginForm() {
               disabled={isLoading}
             >
               <Github className="mr-2 h-4 w-4" />
-              Sign in with GitHub
+              Continue with GitHub
             </Button>
             
             <Button
               variant="outline"
-              className="w-full"
+              className="w-full flex bg-white border-gray-300 hover:bg-gray-50"
               onClick={() => handleOAuthSignIn('google')}
               disabled={isLoading}
             >
-              <Mail className="mr-2 h-4 w-4" />
-              Sign in with Google
+              <GoogleIcon className="mr-2 h-4 w-4" />
+              Continue with Google
             </Button>
           </div>
         </div>

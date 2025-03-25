@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +10,8 @@ import { Game, ProjectionResponse } from "@/types";
 import { useRealTimeGames } from "@/lib/use-real-time-games";
 import { useRealTimeProjections } from "@/lib/use-real-time-projections";
 import { format } from "date-fns";
+import { useAuth } from "@/providers/auth-provider";
+import { triggerGameStartNotification, triggerGameEndNotification, triggerFavoriteTeamGameNotification } from "@/lib/notification-triggers";
 
 interface GameDetailClientProps {
   initialGame: Game;
@@ -17,6 +19,16 @@ interface GameDetailClientProps {
 }
 
 export default function GameDetailClient({ initialGame, initialProjections }: GameDetailClientProps) {
+  // Reference to track previous game status
+  const prevGameStatusRef = useRef(initialGame.status);
+  const prevGameScoresRef = useRef({
+    homeScore: initialGame.home_team_score,
+    visitorScore: initialGame.visitor_team_score
+  });
+  
+  // Auth for getting user favorites
+  const auth = useAuth();
+  
   // Use real-time games hook for the game details
   const { 
     games, 
@@ -39,6 +51,84 @@ export default function GameDetailClient({ initialGame, initialProjections }: Ga
 
   // Extract the current game (we only have one)
   const game = games[0] || initialGame;
+
+  // Check if current game is a favorite team's game
+  const [isFavoriteTeam, setIsFavoriteTeam] = useState<boolean>(false);
+  const [favoriteTeamId, setFavoriteTeamId] = useState<string | null>(null);
+  
+  // Check favorite teams on mount
+  useEffect(() => {
+    const checkFavoriteTeams = async () => {
+      if (!auth || !auth.isLoggedIn) return;
+      
+      try {
+        // Get user favorites
+        const { data: favorites } = await auth.getFavorites('team');
+        if (!favorites) return;
+        
+        // Check if either team in this game is a favorite
+        const teamIds = favorites.map(fav => fav.item_id);
+        const homeTeamIsFavorite = teamIds.includes(game.home_team_id);
+        const visitorTeamIsFavorite = teamIds.includes(game.visitor_team_id);
+        
+        if (homeTeamIsFavorite) {
+          setIsFavoriteTeam(true);
+          setFavoriteTeamId(game.home_team_id);
+        } else if (visitorTeamIsFavorite) {
+          setIsFavoriteTeam(true);
+          setFavoriteTeamId(game.visitor_team_id);
+        }
+      } catch (error) {
+        console.error("Error checking favorite teams:", error);
+      }
+    };
+    
+    checkFavoriteTeams();
+  }, [auth, game.home_team_id, game.visitor_team_id]);
+
+  // Monitor game status changes to trigger notifications
+  useEffect(() => {
+    // Don't proceed if we don't have a valid game
+    if (!game || !game.id) return;
+    
+    // Check for game status transitions
+    const currentStatus = game.status;
+    const previousStatus = prevGameStatusRef.current;
+    
+    // Track scores for final score notification
+    const currentScores = {
+      homeScore: game.home_team_score,
+      visitorScore: game.visitor_team_score
+    };
+    const previousScores = prevGameScoresRef.current;
+    
+    // Game starting notification
+    if (previousStatus !== "in_progress" && currentStatus === "in_progress") {
+      // Game has started
+      triggerGameStartNotification(game);
+      
+      // If it's a favorite team's game, trigger favorite team notification
+      if (isFavoriteTeam && favoriteTeamId) {
+        triggerFavoriteTeamGameNotification(game, favoriteTeamId, true);
+      }
+    }
+    
+    // Game ending notification
+    if (previousStatus === "in_progress" && currentStatus !== "in_progress" &&
+        currentScores.homeScore !== null && currentScores.visitorScore !== null) {
+      // Game has ended
+      triggerGameEndNotification(game);
+      
+      // If it's a favorite team's game, trigger favorite team notification
+      if (isFavoriteTeam && favoriteTeamId) {
+        triggerFavoriteTeamGameNotification(game, favoriteTeamId, false);
+      }
+    }
+    
+    // Update reference values for next comparison
+    prevGameStatusRef.current = currentStatus;
+    prevGameScoresRef.current = currentScores;
+  }, [game, isFavoriteTeam, favoriteTeamId]);
 
   // Group projections by team
   const homeTeamProjections = useMemo(() => 
@@ -67,6 +157,9 @@ export default function GameDetailClient({ initialGame, initialProjections }: Ga
                 </span>
                 <span className="text-xs">Live</span>
               </Badge>
+            )}
+            {isFavoriteTeam && (
+              <Badge variant="secondary" className="ml-2">Favorite</Badge>
             )}
           </CardTitle>
           {gameLastUpdate && (

@@ -14,11 +14,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Menu, X, User, LogOut, Settings, Heart, Bell } from 'lucide-react';
+import { Menu, X, User, LogOut, Settings, Heart, Bell, ShieldCheck } from 'lucide-react';
+import { UserRole } from '@/lib/supabase';
+import { NotificationBell } from "./notification-bell"
+import { Badge } from "@/components/ui/badge"
 
 export default function Header() {
   const pathname = usePathname();
-  const { user, signOut } = useAuth();
+  const { user, signOut, isAdmin } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [userInitials, setUserInitials] = useState('');
   const [userAvatar, setUserAvatar] = useState('');
@@ -92,6 +95,18 @@ export default function Header() {
             >
               Stats
             </Link>
+            {user && (
+              <>
+                <Link
+                  href="/favorites"
+                  className={`text-sm flex items-center ${isActive('/favorites') ? 'font-bold text-primary' : 'text-muted-foreground hover:text-foreground'}`}
+                >
+                  <Heart className="mr-1 h-4 w-4" />
+                  Favorites
+                </Link>
+                <NotificationBell className={`text-sm flex items-center ${isActive('/notifications') ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`} />
+              </>
+            )}
           </nav>
 
           {/* Authentication and User Menu */}
@@ -133,8 +148,35 @@ export default function Header() {
                       <span>Settings</span>
                     </Link>
                   </DropdownMenuItem>
+                  
+                  {/* Admin Section - Only visible to admins */}
+                  {isAdmin() && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuLabel className="flex items-center">
+                        <ShieldCheck className="mr-2 h-4 w-4 text-primary" />
+                        <span>Administration</span>
+                      </DropdownMenuLabel>
+                      <DropdownMenuItem asChild>
+                        <Link href="/admin" className="flex items-center cursor-pointer">
+                          <span>Admin Dashboard</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/admin/users" className="flex items-center cursor-pointer">
+                          <span>User Management</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/admin/roles" className="flex items-center cursor-pointer">
+                          <span>Role Management</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                  
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => signOut()} className="flex items-center cursor-pointer">
+                  <DropdownMenuItem onClick={signOut} className="cursor-pointer">
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Log out</span>
                   </DropdownMenuItem>
@@ -199,8 +241,34 @@ export default function Header() {
             >
               Stats
             </Link>
+            {user && (
+              <>
+                <Link
+                  href="/favorites"
+                  className={`text-sm flex items-center ${isActive('/favorites') ? 'font-bold text-primary' : 'text-muted-foreground'}`}
+                  onClick={closeMenu}
+                >
+                  <Heart className="mr-2 h-4 w-4" />
+                  Favorites
+                </Link>
+                <Link
+                  href="/notifications"
+                  className={`text-sm flex items-center ${isActive('/notifications') ? 'font-bold text-primary' : 'text-muted-foreground'}`}
+                  onClick={closeMenu}
+                >
+                  <Bell className="mr-2 h-4 w-4" />
+                  Notifications
+                  {auth?.unreadCount > 0 && (
+                    <Badge variant="destructive" className="ml-2">
+                      {auth.unreadCount > 99 ? '99+' : auth.unreadCount}
+                    </Badge>
+                  )}
+                </Link>
+              </>
+            )}
             
-            <div className="pt-4 border-t">
+            {/* Mobile Auth Menu */}
+            <div className="mt-6 pt-6 border-t">
               {user ? (
                 <>
                   <div className="flex items-center mb-4">
@@ -238,6 +306,38 @@ export default function Header() {
                       <Settings className="mr-2 h-4 w-4" />
                       <span>Settings</span>
                     </Link>
+                    
+                    {/* Admin Section - Only visible to admins */}
+                    {isAdmin() && (
+                      <>
+                        <div className="mt-4 pt-4 border-t flex items-center">
+                          <ShieldCheck className="mr-2 h-4 w-4 text-primary" />
+                          <span className="font-medium">Administration</span>
+                        </div>
+                        <Link
+                          href="/admin"
+                          className="flex items-center text-sm ml-6"
+                          onClick={closeMenu}
+                        >
+                          <span>Admin Dashboard</span>
+                        </Link>
+                        <Link
+                          href="/admin/users"
+                          className="flex items-center text-sm ml-6"
+                          onClick={closeMenu}
+                        >
+                          <span>User Management</span>
+                        </Link>
+                        <Link
+                          href="/admin/roles"
+                          className="flex items-center text-sm ml-6"
+                          onClick={closeMenu}
+                        >
+                          <span>Role Management</span>
+                        </Link>
+                      </>
+                    )}
+                    
                     <button
                       onClick={() => {
                         signOut();

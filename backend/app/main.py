@@ -35,6 +35,19 @@ async def lifespan(app: FastAPI):
     scheduler_service.start()
     scheduler_service.schedule_daily_updates(hour=settings.UPDATE_HOUR, minute=settings.UPDATE_MINUTE)
     
+    # Schedule notification digests
+    if settings.SMTP_SERVER and settings.SMTP_FROM_EMAIL:
+        scheduler_service.schedule_notification_digests(
+            daily_hour=8,     # 8 AM for daily digests
+            daily_minute=0,
+            weekly_day=0,     # Monday for weekly digests
+            weekly_hour=9,    # 9 AM for weekly digests
+            weekly_minute=0
+        )
+        logger.info("Notification digest jobs scheduled")
+    else:
+        logger.info("Email notifications not configured - skipping notification digest scheduling")
+    
     # Record initial scheduler metrics
     if settings.ENABLE_METRICS:
         metrics_service.update_scheduler_metrics()

@@ -8,16 +8,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from '@/components/ui/use-toast';
+import AvatarUpload from '@/components/auth/avatar-upload';
 
 export default function ProfileEditPage() {
   const { user, isLoading } = useAuth();
   const router = useRouter();
-  const [userInitials, setUserInitials] = useState('');
-  const [userAvatar, setUserAvatar] = useState('');
   const [saving, setSaving] = useState(false);
   
   // Form fields
@@ -28,27 +26,12 @@ export default function ProfileEditPage() {
   
   useEffect(() => {
     if (user) {
-      // Generate initials from email
-      const emailName = user.email?.split('@')[0] || '';
-      const initials = emailName
-        .split(/[._-]/)
-        .map(part => part[0])
-        .join('')
-        .toUpperCase()
-        .substring(0, 2);
-      
-      setUserInitials(initials);
-      
       // Set default values from user metadata
       if (user.user_metadata) {
         setDisplayName(user.user_metadata.display_name || '');
         setBio(user.user_metadata.bio || '');
         setFavoriteTeam(user.user_metadata.favorite_team || '');
         setEmailNotifications(user.user_metadata.email_notifications || false);
-        
-        if (user.user_metadata.avatar_url) {
-          setUserAvatar(user.user_metadata.avatar_url);
-        }
       }
     }
   }, [user]);
@@ -103,11 +86,8 @@ export default function ProfileEditPage() {
       
       <Card>
         <CardHeader>
-          <div className="flex items-center space-x-4">
-            <Avatar className="h-16 w-16">
-              <AvatarImage src={userAvatar} alt={user?.email || 'User'} />
-              <AvatarFallback className="text-lg">{userInitials}</AvatarFallback>
-            </Avatar>
+          <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6">
+            <AvatarUpload size="lg" />
             <div>
               <CardTitle>{user?.email}</CardTitle>
               <CardDescription>

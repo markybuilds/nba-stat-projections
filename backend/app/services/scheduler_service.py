@@ -120,46 +120,84 @@ class SchedulerService:
         
         return job
     
-    def schedule_materialized_view_refresh(self, interval_minutes: int = 15):
+    def schedule_materialized_view_refresh(self, hour: int = 2, minute: int = 0):
         """
-        Schedule the materialized view refresh job.
+        Schedule job to refresh materialized views.
         
         Args:
-            interval_minutes: Interval in minutes between refreshes (default: 15)
+            hour: Hour of the day to run the refresh (default: 2 AM)
+            minute: Minute of the hour to run the refresh (default: 0)
         """
-        # Import here to avoid circular imports
-        from app.core.scheduler import refresh_materialized_views
+        from app.scripts.refresh_materialized_views import refresh_materialized_views
         
-        # Schedule the job to run every interval_minutes
-        interval_job = self.scheduler.add_job(
+        job = self.scheduler.add_job(
             self._wrap_job(refresh_materialized_views, "refresh_materialized_views"),
-            trigger=IntervalTrigger(minutes=interval_minutes),
+            trigger=CronTrigger(hour=hour, minute=minute),
             id="refresh_materialized_views",
             name="Refresh Materialized Views",
             replace_existing=True
         )
         
-        # Also schedule at specific times before games typically start
-        cron_job = self.scheduler.add_job(
-            self._wrap_job(refresh_materialized_views, "refresh_views_fixed_times"),
-            trigger=CronTrigger(hour='6,12,17,21', minute=0),
-            id="refresh_views_fixed_times",
-            name="Refresh Views Before Games",
-            replace_existing=True
-        )
-        
-        self.jobs["refresh_materialized_views"] = interval_job
-        self.jobs["refresh_views_fixed_times"] = cron_job
-        
-        logger.info(f"Scheduled materialized view refresh to run every {interval_minutes} minutes")
-        logger.info("Scheduled additional view refreshes at 6 AM, 12 PM, 5 PM, and 9 PM")
+        self.jobs["refresh_materialized_views"] = job
+        logger.info(f"Scheduled materialized view refresh job to run at {hour:02d}:{minute:02d}")
         
         # Update metrics
         from app.services.metrics_service import metrics_service
-        metrics_service.update_scheduler_next_run("refresh_materialized_views", interval_job.next_run_time)
-        metrics_service.update_scheduler_next_run("refresh_views_fixed_times", cron_job.next_run_time)
+        metrics_service.update_scheduler_next_run("refresh_materialized_views", job.next_run_time)
         
-        return interval_job
+        return job
+    
+    def schedule_notification_digests(self, 
+                                      daily_hour: int = 8, 
+                                      daily_minute: int = 0,
+                                      weekly_day: int = 0,  # 0 = Monday
+                                      weekly_hour: int = 9,
+                                      weekly_minute: int = 0):
+        """
+        Schedule jobs to send notification digests.
+        
+        Args:
+            daily_hour: Hour of the day to send daily digests (default: 8 AM)
+            daily_minute: Minute of the hour for daily digests (default: 0)
+            weekly_day: Day of the week for weekly digests (0-6, where 0=Monday, default: Monday)
+            weekly_hour: Hour of the day for weekly digests (default: 9 AM)
+            weekly_minute: Minute of the hour for weekly digests (default: 0)
+        """
+        from app.services.notification_digest_service import notification_digest_service
+        
+        # Schedule daily digest job
+        daily_job = self.scheduler.add_job(
+            self._wrap_job(notification_digest_service.send_daily_digests, "notification_daily_digest"),
+            trigger=CronTrigger(hour=daily_hour, minute=daily_minute),
+            id="notification_daily_digest",
+            name="Daily Notification Digest",
+            replace_existing=True
+        )
+        
+        self.jobs["notification_daily_digest"] = daily_job
+        logger.info(f"Scheduled daily notification digest job to run at {daily_hour:02d}:{daily_minute:02d}")
+        
+        # Schedule weekly digest job
+        weekly_job = self.scheduler.add_job(
+            self._wrap_job(notification_digest_service.send_weekly_digests, "notification_weekly_digest"),
+            trigger=CronTrigger(day_of_week=weekly_day, hour=weekly_hour, minute=weekly_minute),
+            id="notification_weekly_digest",
+            name="Weekly Notification Digest",
+            replace_existing=True
+        )
+        
+        self.jobs["notification_weekly_digest"] = weekly_job
+        logger.info(f"Scheduled weekly notification digest job to run at {weekly_hour:02d}:{weekly_minute:02d} on day {weekly_day}")
+        
+        # Update metrics
+        from app.services.metrics_service import metrics_service
+        metrics_service.update_scheduler_next_run("notification_daily_digest", daily_job.next_run_time)
+        metrics_service.update_scheduler_next_run("notification_weekly_digest", weekly_job.next_run_time)
+        
+        return {
+            "daily": daily_job,
+            "weekly": weekly_job
+        }
     
     def schedule_custom_job(self, 
                             func: Callable, 

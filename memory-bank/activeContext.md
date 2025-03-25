@@ -57,19 +57,113 @@ After completing major performance optimizations, we've now shifted focus to imp
    - Added connection pooling for improved throughput
 
 ### Current Tasks in Progress
-- Adding social login providers (Google, GitHub)
-- Implementing email verification flow
-- Creating password reset functionality
-- Developing role-based access control
-- Adding avatar upload capability for profiles
-- Implementing user favorites system (for teams and players)
+- ✅ Adding social login providers (Google, GitHub)
+  - ✅ Implemented Google OAuth authentication
+  - ✅ Implemented GitHub OAuth authentication
+  - ✅ Created custom icon component for Google
+  - ✅ Improved styling for social login buttons
+  - ✅ Added provider-specific OAuth configuration
+  - ✅ Updated environment documentation with setup instructions
+- ✅ Implementing email verification flow
+  - ✅ Enhanced Supabase client with verification functions
+  - ✅ Updated signup form to use email verification
+  - ✅ Created verification status component
+  - ✅ Added verification check to profile page
+  - ✅ Created dedicated verification pages
+  - ✅ Implemented resend verification functionality
+  - ✅ Enhanced callback handling for verification links
+- ✅ Creating password reset functionality
+  - ✅ Implemented reset password request page for users to request password reset links
+  - ✅ Created reset password form component with email input and validation
+  - ✅ Developed new password page for setting password after reset link click
+  - ✅ Implemented new password form with matching password validation
+  - ✅ Added OAuth callback page for handling third-party authentication redirects
+- ✅ Implementing role-based access control
+  - ✅ Extended auth system with roles
+  - ✅ Created admin dashboard
+  - ✅ Added role management UI
+  - ✅ Updated navigation for admin users
+- ✅ Implemented avatar upload capability
+  - ✅ Added Supabase storage integration
+  - ✅ Created avatar upload component
+  - ✅ Integrated with profile management
+  - ✅ Added image validation and error handling
+- ✅ User preferences system
+  - ✅ Defining preference schema
+  - ✅ Creating settings UI
 
-### Next Steps
-- Create notification system for authenticated users
-- Implement user preferences/settings
-- Enhance real-time features with authenticated WebSocket connections
-- Add analytics for user behavior tracking
-- Create admin dashboard for user management
+### Notifications System Implementation
+
+The notifications system is being implemented with the following components:
+
+- Database Schema: A notifications table with proper fields for storing user notifications with RLS policies
+- Backend API: RESTful endpoints for CRUD operations on notifications
+- Frontend Components: UI elements including NotificationBell, NotificationCard, and NotificationList
+- Authentication Integration: Extending AuthProvider to manage notification state
+- Real-time Updates: WebSocket integration for instant notification delivery
+
+**Implementation Details:**
+- We've created a notifications table in the database with RLS policies
+- We've implemented RESTful endpoints for notification management
+- Built components to display and interact with notifications
+- Added a dedicated notifications page with filtering and infinite loading
+- Enhanced WebSocketProvider to support real-time notification delivery
+- Added comprehensive user notification preferences:
+  - Notification type toggles (system, alert, info, update)
+  - Sound notification settings
+  - Desktop notification settings with permission request
+  - Automatic notification badge counters
+
+**Capabilities:**
+- Users can receive notifications for various events
+- Notifications have read/unread states
+- Notifications can be filtered by type
+- Pagination and infinite loading for better performance
+- Real-time notification delivery via WebSockets
+- Desktop notifications with browser permission handling
+- Sound alerts for new notifications (configurable)
+
+**Next Steps:**
+- Add notification triggers for key events (game starts, player milestones, etc.)
+- Add email notification delivery option
+- Complete end-to-end testing of the notification system
+
+### Performance Optimization
+- Implementing additional performance monitoring
+- Optimizing database queries for faster response times
+- Analyzing and improving Lighthouse scores
+- Implementing progressive image loading
+
+### Future Task Planning
+- Researching advanced data visualization libraries
+- Planning comparison feature for multiple players
+- Designing mobile-optimized views for complex data tables
+
+## Recent Changes
+
+### Authentication System Enhancements
+- Completed implementation of email verification flow with dedicated pages
+- Implemented role-based access control (RBAC) with admin dashboard and management
+- Added avatar upload functionality with image optimization
+- Created comprehensive user preferences system with theme selection
+- Implemented favorites system for authenticated users with UI integration
+
+### Favorites System Implementation
+- Extended Supabase client with favorites management functions
+- Updated auth provider to expose favorites-related methods
+- Created reusable FavoriteButton component for consistent UI across the app
+- Built dedicated favorites page with categorization and filtering
+- Integrated favorites into player and team detail pages
+- Added favorites link to main navigation for authenticated users
+- Implemented optimistic UI updates for immediate feedback
+- Added proper error handling and authentication checks
+
+### UI/UX Improvements
+- Enhanced header with role-specific navigation options
+- Updated mobile menu for improved navigation experience
+- Implemented consistent styling for authentication components
+- Added visual indicators for favorites across the application
+- Improved overall UI responsiveness and accessibility
 
 ## Previous Work
 
@@ -83,112 +177,49 @@ After completing major performance optimizations, we've now shifted focus to imp
 
 ## Current Focus
 
-- **Frontend Enhancement**: Enhancing the Next.js frontend with advanced features including data visualization, player comparison functionality, and dashboard metrics.
-- **Deployment Capabilities**: Adding deployment pipeline and preparing for production release.
-- **Performance Optimization**: Improving application performance through code splitting, image optimization, caching, and database optimization.
-- **Real-time Data Updates**: Added WebSocket functionality to provide real-time projection updates to users. Both backend and frontend implementation are now complete.
-- **Data Automation**: Implemented scheduler service for automated data updates using APScheduler, created CLI tool for administration, and updated Kubernetes configuration.
-- **Monitoring and Alerting**: Added comprehensive monitoring with Prometheus metrics and an alerting system with multiple notification channels.
-- **Codebase Organization**: Reorganized the project structure to eliminate duplicate directories and ensure a clear, consistent structure.
-- **Database Optimization**: Improving database query performance through analysis, indexing, and query optimization to enhance API response times.
+We have completed the implementation of a comprehensive notifications system for the NBA stat projections application. The system includes:
+
+1. Database schema and API endpoints for notifications
+2. UI components for displaying and managing notifications
+3. Real-time notification delivery through WebSockets
+4. User preferences for notification settings (types, sounds, desktop notifications)
+5. Notification triggers for key events:
+   - Game start/end notifications
+   - Player milestone notifications (points, rebounds, assists, double-doubles, triple-doubles)
+   - Significant projection update notifications (when projections change by a threshold %)
+   - Favorite team game notifications
+   - League event notifications
+6. Email notification delivery options:
+   - Immediate email notifications for specific notification types
+   - Digest mode for batched notifications (daily/weekly)
+   - User preferences for email notification settings
+
+## Next Steps
+
+With the notifications system now complete, we can focus on the next priorities:
+- Performance optimization for large datasets
+- Adding data visualization for player statistics
+- Expanding the mobile experience
 
 ## Recent Changes
 
-- Created a Next.js frontend application with proper layout and components.
-- Implemented responsive design for mobile and desktop.
-- Created routes for all major sections (dashboard, players, games, projections).
-- Developed API client for communicating with the backend.
-- Implemented basic player and game listings with details.
-- Added filtering and pagination to the projections page.
-- Created player comparison component with interactive player selection.
-- Implemented comparison view with metric differentials and visual indicators.
-- Added player swap functionality for easy comparison adjustments.
-- Created detailed comparison table with direct stat comparisons.
-- Added a new route and navigation link for the comparison feature.
-- Enhanced dashboard with summary metric cards and position-based analytics.
-- Implemented data visualization with charts for statistical breakdowns.
-- Created responsive grid layouts for dashboard components.
-- Created Dockerfiles for containerization of both backend and frontend.
-- Set up docker-compose for local development environment.
-- Implemented Kubernetes deployment configurations for production.
-- Created GitHub Actions workflows for CI/CD pipeline.
-- Developed daily data update script for automated projections.
-- Added monitoring configuration with Prometheus.
-- Created comprehensive deployment documentation.
-- Implemented WebSocket server for real-time updates of projections.
-- Created notification system for broadcasting projection updates.
-- Added WebSocket integration with daily data update process.
-- Updated backend structure to support real-time functionality.
-- Implemented WebSocket client for the frontend application.
-- Created WebSocket context provider for managing connections and notifications.
-- Added toast notifications for real-time updates.
-- Implemented real-time data hooks for games and projections.
-- Updated games, game details, and dashboard pages to use real-time data.
-- Added visual indicators for live data connections.
-- Implemented date filtering with live updates for game schedules.
-- Created scheduler service using APScheduler for automated tasks.
-- Developed CLI tool for administrators to manage scheduled tasks.
-- Updated Kubernetes CronJob configuration to use the scheduler CLI.
-- Added health check endpoint for monitoring scheduler status.
-- Created service documentation for the scheduler.
-- Implemented Prometheus metrics integration for tracking API requests, database operations, scheduler jobs, and more.
-- Created metrics service for collecting and exposing application metrics.
-- Implemented alerts service with email and Slack notification capabilities.
-- Added proactive health checks for monitoring system components.
-- Created API endpoints for alert management.
-- Enhanced scheduler service with health checks and metrics tracking.
-- Identified and resolved duplicate project structures.
-- Consolidated code from nested directories into a single coherent structure.
-- Merged unique backend and frontend components to eliminate duplication.
-- Cleaned up unnecessary directories and updated .gitignore.
-- Verified all components function correctly after reorganization.
-- Documented the reorganization process for future reference.
+- Created email notification service for sending individual notification emails
+- Implemented notification digest service for batched emails
+- Updated database schema with new user preference fields for email notification settings
+- Modified notification controller to respect user email preferences
+- Configured scheduled jobs for sending daily and weekly digest emails
+- Enhanced user preferences UI to include email notification settings
 
-## Implementation Notes
+## Technical Decisions
 
-- Using Next.js App Router for routing between pages.
-- Leveraging server components for initial data loading.
-- Using client components for interactive features.
-- Implemented color coding to highlight statistical differences in player comparisons.
-- Built player selection dropdowns with team identifiers for better context.
-- Using a tabbed layout to organize different comparison views.
-- Created summary cards for key metrics on the dashboard.
-- Used recharts library for data visualization components.
-- Implemented position-based statistical breakdowns with bar charts.
-- Designed responsive grid layouts for dashboard components.
-- Used Docker for containerization with multi-stage builds for efficiency.
-- Implemented Kubernetes configurations for scalable deployment.
-- Created GitHub Actions workflows for automating testing and deployment.
-- Developed a comprehensive daily data update script with error handling.
-- Configured Prometheus for monitoring application metrics.
-- Set up Kubernetes Ingress for routing external traffic.
-- Created WebSocket connection manager for handling real-time updates.
-- Implemented subscription-based messaging system for different data topics.
-- Integrated WebSocket notifications with the daily data update process.
-- Set up broadcasting functionality for projection updates.
-- Added system notification support for important events.
-- Implemented singleton pattern for WebSocket client to ensure a single connection.
-- Created WebSocket provider with React Context API for application-wide access.
-- Added automatic reconnection logic for WebSocket client with exponential backoff.
-- Created custom hooks for real-time data management (games and projections).
-- Implemented client-components that wrap server components for real-time updates.
-- Added toast notifications for WebSocket events and data updates.
-- Implemented visual indicators for live connections and recent updates.
-- Used APScheduler for managing scheduled tasks with the scheduler service.
-- Implemented singleton pattern for scheduler service to ensure a single instance.
-- Created CLI tool for administrators to manage scheduled tasks.
-- Added health check endpoint for monitoring scheduler status.
-- Used Kubernetes CronJob for running the scheduler in production environment.
-- Implemented Prometheus metrics collection throughout the application.
-- Used the singleton pattern for metrics and alerts services.
-- Created a flexible alerts service with configurable notification channels.
-- Added proactive health checks to identify issues before they affect users.
-- Designed metrics middleware to track API request performance.
-- Implemented database query tracking for monitoring query performance.
-- Added circuit breakers to prevent alert storms.
-- Used a methodical approach to identify and merge duplicate code.
-- Preserved all functionality while eliminating duplication.
-- Updated configuration files to reflect the new project structure.
+- We're using browser notifications API for desktop notifications
+- Notification sounds are played using the Web Audio API
+- Email notifications use HTML templates with responsive design
+- Notification digests group notifications by type for better organization
+- Email delivery leverages existing SMTP configuration
+- Game status changes are detected by comparing previous and current game states
+- Player milestones are detected by comparing previous and current stats
+- Projection updates are only notified if they exceed a certain threshold percentage
 
 ## Open Questions
 
@@ -261,3 +292,47 @@ After completing major performance optimizations, we've now shifted focus to imp
 - ⏳ Adding automated database backups to the pipeline
 - ⏳ Setting up Grafana dashboards for metrics visualization
 - ⏳ Creating alerting dashboard UI 
+
+## Next Steps
+
+1. Complete remaining auth features:
+   - Implement favorites functionality
+
+2. Enhance admin capabilities:
+   - Add user activity monitoring
+   - Create audit logs
+   - Implement batch operations
+
+3. Improve error handling:
+   - Add detailed error tracking
+   - Implement retry mechanisms
+   - Create error boundary components
+
+4. Complete WebSocket integration for real-time notifications
+- Add notification preferences to user settings
+- Implement notification triggers for key events
+- Add email notification delivery option
+
+## Technical Decisions
+
+- We're using browser notifications API for desktop notifications
+- Notification sounds are played using the Web Audio API
+- Email notifications use HTML templates with responsive design
+- Notification digests group notifications by type for better organization
+- Email delivery leverages existing SMTP configuration
+- Game status changes are detected by comparing previous and current game states
+- Player milestones are detected by comparing previous and current stats
+- Projection updates are only notified if they exceed a certain threshold percentage
+
+## Recent Changes
+
+- Created a notification triggers utility file (`notification-triggers.ts`) with functions for various notification types
+- Updated the game detail component to trigger notifications when game status changes
+- Created a player detail client component that handles real-time updates and triggers notifications for player milestones
+- Updated the player page to utilize the new client component
+- Created email notification service for sending individual notification emails
+- Implemented notification digest service for batched emails
+- Updated database schema with new user preference fields for email notification settings
+- Modified notification controller to respect user email preferences
+- Configured scheduled jobs for sending daily and weekly digest emails
+- Enhanced user preferences UI to include email notification settings 

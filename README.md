@@ -112,6 +112,27 @@ For a containerized development environment:
 
 See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions on deploying the application to production environments using Docker, Kubernetes, and CI/CD pipelines.
 
+## Notification Sounds
+
+The application supports notification sounds for real-time alerts. To enable this functionality:
+
+1. Create a notification sound file named `notification.mp3`
+2. Place it in the `frontend/public/sounds/` directory
+
+You can obtain free notification sounds from sites like:
+- [Notification Sounds](https://notificationsounds.com/)
+- [Pixabay](https://pixabay.com/sound-effects/search/notification/)
+- [Mixkit](https://mixkit.co/free-sound-effects/notification/)
+
+The recommended sound file should be:
+- Short (1-2 seconds)
+- Clear and distinctive
+- Appropriate for notifications
+- MP3 format
+- Small file size (under 100KB)
+
+If the sound file is not present, the application will silently fail without affecting functionality.
+
 ## License
 
 MIT
