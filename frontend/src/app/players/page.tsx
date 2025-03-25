@@ -47,51 +47,101 @@ export default async function PlayersPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Player</TableHead>
-                  <TableHead>Team</TableHead>
-                  <TableHead>Position</TableHead>
-                  <TableHead className="text-right">Jersey #</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {players.map((player) => (
-                  <TableRow key={player.id}>
-                    <TableCell>
-                      <Link 
-                        href={`/players/${player.id}`}
-                        className="font-medium hover:underline flex items-center gap-2"
-                      >
+            {/* Desktop Table View - Hidden on Mobile */}
+            <div className="hidden md:block">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Player</TableHead>
+                    <TableHead>Team</TableHead>
+                    <TableHead>Position</TableHead>
+                    <TableHead className="text-right">Jersey #</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {players.map((player) => (
+                    <TableRow key={player.id}>
+                      <TableCell>
+                        <Link 
+                          href={`/players/${player.id}`}
+                          className="font-medium hover:underline flex items-center gap-2"
+                        >
+                          <PlayerAvatar 
+                            playerId={player.id}
+                            playerName={player.full_name}
+                            teamId={player.team_id}
+                            size="sm"
+                            showTeamColor
+                          />
+                          <span>{player.full_name}</span>
+                        </Link>
+                      </TableCell>
+                      <TableCell className="flex items-center gap-2">
+                        <TeamLogo teamId={player.team_id} size="xs" />
+                        <span>{player.team ? player.team.abbreviation : player.team_id}</span>
+                      </TableCell>
+                      <TableCell>
+                        {player.position && (
+                          <Badge variant="outline">
+                            {player.position}
+                          </Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {player.jersey_number || "-"}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+            
+            {/* Mobile Card View - Shown only on Mobile */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:hidden gap-4">
+              {players.map((player) => (
+                <Link 
+                  href={`/players/${player.id}`}
+                  key={player.id}
+                  className="group"
+                >
+                  <Card className="h-full hover:border-primary transition-colors">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-3 mb-3">
                         <PlayerAvatar 
                           playerId={player.id}
                           playerName={player.full_name}
                           teamId={player.team_id}
-                          size="sm"
+                          size="md"
                           showTeamColor
                         />
-                        <span>{player.full_name}</span>
-                      </Link>
-                    </TableCell>
-                    <TableCell className="flex items-center gap-2">
-                      <TeamLogo teamId={player.team_id} size="xs" />
-                      <span>{player.team ? player.team.abbreviation : player.team_id}</span>
-                    </TableCell>
-                    <TableCell>
-                      {player.position && (
-                        <Badge variant="outline">
-                          {player.position}
-                        </Badge>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {player.jersey_number || "-"}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                        <div>
+                          <h3 className="font-semibold group-hover:text-primary transition-colors line-clamp-1">
+                            {player.full_name}
+                          </h3>
+                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                            <TeamLogo teamId={player.team_id} size="xs" />
+                            <span>{player.team ? player.team.abbreviation : player.team_id}</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex justify-between items-center mt-2 text-sm">
+                        <div>
+                          {player.position && (
+                            <Badge variant="outline">
+                              {player.position}
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="text-muted-foreground">
+                          #{player.jersey_number || "N/A"}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
           </CardContent>
         </Card>
       </div>

@@ -1,13 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { Game } from "@/types";
 import { useRealTimeGames } from "@/lib/use-real-time-games";
 import { format } from "date-fns";
+import { PullToRefresh } from "@/components/ui/pull-to-refresh";
+import { useToast } from "@/components/ui/use-toast";
 
 interface GamesClientProps {
   initialGames: Game[];
@@ -16,12 +20,14 @@ interface GamesClientProps {
 
 export default function GamesClient({ initialGames, initialDate }: GamesClientProps) {
   const [selectedDate, setSelectedDate] = useState<string>(initialDate);
+  const { toast } = useToast();
   
   // Use our real-time games hook
   const { 
     games, 
     lastUpdate, 
-    isLive 
+    isLive,
+    refreshGames
   } = useRealTimeGames({
     initialData: initialGames,
     date: selectedDate
@@ -38,101 +44,130 @@ export default function GamesClient({ initialGames, initialDate }: GamesClientPr
     gamesByDate[date].push(game);
   });
 
+  // Handle refresh
+  const handleRefresh = useCallback(async () => {
+    await refreshGames();
+    toast({
+      title: "Refreshed",
+      description: "Game data has been updated",
+      duration: 3000,
+    });
+  }, [refreshGames, toast]);
+
   return (
-    <Card className="w-full mb-6">
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          <span>Game Schedule</span>
-          {isLive && (
-            <Badge variant="outline" className="ml-2 gap-1 px-1.5">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-              </span>
-              <span className="text-xs">Live</span>
-            </Badge>
-          )}
-        </CardTitle>
-        <div className="flex flex-col sm:flex-row gap-4 mt-4">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Date:</span>
-            <Input
-              type="date"
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-              className="w-40"
-            />
-          </div>
-          {lastUpdate && (
-            <div className="text-xs text-muted-foreground self-end">
-              Last updated: {format(lastUpdate, 'HH:mm:ss')}
+    <PullToRefresh onRefresh={handleRefresh} className="h-full">
+      <Card className="w-full mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <span>Game Schedule</span>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                size="icon" 
+                onClick={handleRefresh}
+                disabled={false}
+                title="Refresh games"
+                className="h-8 w-8"
+              >
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+              {isLive && (
+                <Badge variant="outline" className="gap-1 px-1.5">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                  </span>
+                  <span className="text-xs">Live</span>
+                </Badge>
+              )}
             </div>
-          )}
-        </div>
-      </CardHeader>
-      <CardContent>
-        {Object.keys(gamesByDate).length > 0 ? (
-          Object.entries(gamesByDate).map(([date, dateGames]) => (
-            <div key={date} className="mb-6">
-              <h3 className="text-lg font-medium mb-4">{date}</h3>
-              <div className="grid grid-cols-1 gap-4">
-                {dateGames.map((game) => (
-                  <Link 
-                    href={`/games/${game.id}`} 
-                    key={game.id}
-                    className="block"
-                  >
-                    <div className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
-                      <div className="grid grid-cols-7 gap-2 items-center">
-                        <div className="col-span-3 text-right">
-                          <div className="font-medium">{game.visitor_team?.full_name || game.visitor_team_id}</div>
-                          {game.visitor_team_score !== null && game.visitor_team_score !== undefined && (
-                            <div className="text-xl font-bold">{game.visitor_team_score}</div>
-                          )}
-                        </div>
-                        
-                        <div className="col-span-1 text-center">
-                          <div className="text-muted-foreground">@</div>
-                          {game.visitor_team_score !== null && 
-                           game.visitor_team_score !== undefined && 
-                           game.home_team_score !== null && 
-                           game.home_team_score !== undefined && (
-                            <Badge 
-                              variant={game.visitor_team_score > game.home_team_score ? "default" : "outline"}
-                              className="mx-auto my-1"
-                            >
-                              {game.visitor_team_score > game.home_team_score ? "W" : "L"}
-                            </Badge>
-                          )}
-                        </div>
-                        
-                        <div className="col-span-3">
-                          <div className="font-medium">{game.home_team?.full_name || game.home_team_id}</div>
-                          {game.home_team_score !== null && game.home_team_score !== undefined && (
-                            <div className="text-xl font-bold">{game.home_team_score}</div>
-                          )}
-                        </div>
-                      </div>
-                      
-                      <div className="text-center mt-2 text-sm text-muted-foreground">
-                        {game.status === "in_progress" && (
-                          <Badge variant="secondary" className="mx-1">LIVE</Badge>
-                        )}
-                        {new Date(game.game_date).toLocaleTimeString([], {
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
-                      </div>
-                    </div>
-                  </Link>
-                ))}
+          </CardTitle>
+          <div className="flex flex-col sm:flex-row gap-4 mt-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Date:</span>
+              <Input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="w-40"
+              />
+            </div>
+            {lastUpdate && (
+              <div className="text-xs text-muted-foreground self-end">
+                Last updated: {format(lastUpdate, 'HH:mm:ss')}
               </div>
-            </div>
-          ))
-        ) : (
-          <p className="text-center py-4 text-muted-foreground">No games scheduled for this date</p>
-        )}
-      </CardContent>
-    </Card>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent>
+          {Object.keys(gamesByDate).length > 0 ? (
+            Object.entries(gamesByDate).map(([date, dateGames]) => (
+              <div key={date} className="mb-6">
+                <h3 className="text-lg font-medium mb-4">{date}</h3>
+                <div className="grid grid-cols-1 gap-4">
+                  {dateGames.map((game) => (
+                    <Link 
+                      href={`/games/${game.id}`} 
+                      key={game.id}
+                      className="block"
+                    >
+                      <div className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
+                        <div className="grid grid-cols-7 gap-2 items-center">
+                          <div className="col-span-3 text-right">
+                            <div className="font-medium">{game.visitor_team?.full_name || game.visitor_team_id}</div>
+                            {game.visitor_team_score !== null && game.visitor_team_score !== undefined && (
+                              <div className="text-xl font-bold">{game.visitor_team_score}</div>
+                            )}
+                          </div>
+                          
+                          <div className="col-span-1 text-center">
+                            <div className="text-muted-foreground">@</div>
+                            {game.visitor_team_score !== null && 
+                             game.visitor_team_score !== undefined && 
+                             game.home_team_score !== null && 
+                             game.home_team_score !== undefined && (
+                              <Badge 
+                                variant={game.visitor_team_score > game.home_team_score ? "default" : "outline"}
+                                className="mx-auto my-1"
+                              >
+                                {game.visitor_team_score > game.home_team_score ? "W" : "L"}
+                              </Badge>
+                            )}
+                          </div>
+                          
+                          <div className="col-span-3">
+                            <div className="font-medium">{game.home_team?.full_name || game.home_team_id}</div>
+                            {game.home_team_score !== null && game.home_team_score !== undefined && (
+                              <div className="text-xl font-bold">{game.home_team_score}</div>
+                            )}
+                          </div>
+                        </div>
+                        
+                        <div className="text-center mt-2 text-sm text-muted-foreground">
+                          {game.status === "in_progress" && (
+                            <Badge variant="secondary" className="mx-1">LIVE</Badge>
+                          )}
+                          {new Date(game.game_date).toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-center py-4 text-muted-foreground">No games scheduled for this date</p>
+          )}
+        </CardContent>
+      </Card>
+      
+      {/* Mobile instructions for pull-to-refresh */}
+      <div className="md:hidden text-center text-xs text-muted-foreground pt-0 pb-4">
+        Pull down to refresh games
+      </div>
+    </PullToRefresh>
   );
 } 

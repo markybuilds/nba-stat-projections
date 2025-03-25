@@ -12,6 +12,9 @@ import { useRealTimeProjections } from "@/lib/use-real-time-projections";
 import { format } from "date-fns";
 import { useAuth } from "@/providers/auth-provider";
 import { triggerGameStartNotification, triggerGameEndNotification, triggerFavoriteTeamGameNotification } from "@/lib/notification-triggers";
+import { ScrollableTable } from "@/components/ui/scrollable-table";
+import { PlayerAvatar } from "@/components/ui/player-avatar";
+import { TeamLogo } from "@/components/ui/team-logo";
 
 interface GameDetailClientProps {
   initialGame: Game;
@@ -298,47 +301,91 @@ function ProjectionsTable({ projections }: { projections: ProjectionResponse[] }
     return <p className="text-center py-4 text-muted-foreground">No projections available</p>;
   }
   
+  const columns = [
+    {
+      header: "Player",
+      accessorKey: "player.full_name",
+      fixed: true,
+      cell: (projection: ProjectionResponse) => (
+        <Link 
+          href={`/players/${projection.player.id}`} 
+          className="font-medium hover:text-primary transition-colors flex items-center gap-2"
+        >
+          <PlayerAvatar 
+            playerId={projection.player.id} 
+            playerName={projection.player.full_name}
+            teamId={projection.player.team_id}
+            size="sm"
+            showTeamColor
+          />
+          <span>{projection.player.full_name}</span>
+        </Link>
+      )
+    },
+    {
+      header: "Team",
+      accessorKey: "player.team.abbreviation",
+      fixed: true,
+      cell: (projection: ProjectionResponse) => (
+        <div className="flex items-center gap-2">
+          <TeamLogo teamId={projection.player.team_id} size="xs" />
+          <span>{projection.player.team?.abbreviation || projection.player.team_id}</span>
+        </div>
+      )
+    },
+    {
+      header: "PTS",
+      accessorKey: "projection.projected_points",
+      className: "text-right",
+      cell: (projection: ProjectionResponse) => (
+        projection.projection.projected_points.toFixed(1)
+      )
+    },
+    {
+      header: "REB",
+      accessorKey: "projection.projected_rebounds",
+      className: "text-right",
+      cell: (projection: ProjectionResponse) => (
+        projection.projection.projected_rebounds.toFixed(1)
+      )
+    },
+    {
+      header: "AST",
+      accessorKey: "projection.projected_assists",
+      className: "text-right",
+      cell: (projection: ProjectionResponse) => (
+        projection.projection.projected_assists.toFixed(1)
+      )
+    },
+    {
+      header: "MIN",
+      accessorKey: "projection.projected_minutes",
+      className: "text-right",
+      cell: (projection: ProjectionResponse) => (
+        projection.projection.projected_minutes.toFixed(1)
+      )
+    },
+    {
+      header: "Confidence",
+      accessorKey: "projection.confidence_score",
+      className: "text-right",
+      cell: (projection: ProjectionResponse) => (
+        <Badge 
+          variant={projection.projection.confidence_score >= 70 ? "default" : "secondary"}
+        >
+          {projection.projection.confidence_score.toFixed(0)}%
+        </Badge>
+      )
+    }
+  ];
+  
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Player</TableHead>
-          <TableHead>Team</TableHead>
-          <TableHead className="text-right">PTS</TableHead>
-          <TableHead className="text-right">REB</TableHead>
-          <TableHead className="text-right">AST</TableHead>
-          <TableHead className="text-right">MIN</TableHead>
-          <TableHead className="text-right">Confidence</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {projections.map((projection) => (
-          <TableRow key={`${projection.player.id}-${projection.game.id}`}>
-            <TableCell>
-              <Link 
-                href={`/players/${projection.player.id}`} 
-                className="font-medium hover:underline"
-              >
-                {projection.player.full_name}
-              </Link>
-            </TableCell>
-            <TableCell>
-              {projection.player.team?.abbreviation || projection.player.team_id}
-            </TableCell>
-            <TableCell className="text-right">{projection.projection.projected_points.toFixed(1)}</TableCell>
-            <TableCell className="text-right">{projection.projection.projected_rebounds.toFixed(1)}</TableCell>
-            <TableCell className="text-right">{projection.projection.projected_assists.toFixed(1)}</TableCell>
-            <TableCell className="text-right">{projection.projection.projected_minutes.toFixed(1)}</TableCell>
-            <TableCell className="text-right">
-              <Badge 
-                variant={projection.projection.confidence_score >= 70 ? "default" : "secondary"}
-              >
-                {projection.projection.confidence_score.toFixed(0)}%
-              </Badge>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <ScrollableTable
+      data={projections}
+      columns={columns}
+      keyField={(projection) => `${projection.player.id}-${projection.game.id}`}
+      fixedColumnWidth="180px"
+      scrollableMinWidth="400px"
+    />
   );
 } 

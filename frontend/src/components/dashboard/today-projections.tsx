@@ -10,6 +10,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ProjectionResponse } from "@/types";
+import { ScrollableTable } from "@/components/ui/scrollable-table";
+import { PlayerAvatar } from "@/components/ui/player-avatar";
+import { TeamLogo } from "@/components/ui/team-logo";
+import Link from "next/link";
 
 interface TodayProjectionsProps {
   projections: ProjectionResponse[] | undefined;
@@ -18,6 +22,87 @@ interface TodayProjectionsProps {
 }
 
 export function TodayProjections({ projections, isLoading, error }: TodayProjectionsProps) {
+  const columns = [
+    {
+      header: "Player",
+      accessorKey: "player.full_name",
+      fixed: true,
+      cell: (projection: ProjectionResponse) => (
+        <Link 
+          href={`/players/${projection.player.id}`} 
+          className="font-medium hover:text-primary transition-colors flex items-center gap-2"
+        >
+          <PlayerAvatar 
+            playerId={projection.player.id} 
+            playerName={projection.player.full_name}
+            teamId={projection.player.team_id}
+            size="sm"
+            showTeamColor
+          />
+          <span>{projection.player.full_name}</span>
+        </Link>
+      )
+    },
+    {
+      header: "Team",
+      accessorKey: "player.team_id",
+      fixed: true,
+      cell: (projection: ProjectionResponse) => (
+        <div className="flex items-center gap-2">
+          <TeamLogo teamId={projection.player.team_id} size="xs" />
+          <span>{projection.player.team?.abbreviation || projection.player.team_id}</span>
+        </div>
+      )
+    },
+    {
+      header: "Opponent",
+      accessorKey: "opponent_team.abbreviation",
+      cell: (projection: ProjectionResponse) => (
+        <div className="flex items-center gap-2">
+          <TeamLogo teamId={projection.opponent_team.id} size="xs" />
+          <span>{projection.opponent_team.abbreviation}</span>
+          {projection.home_team ? (
+            <Badge variant="outline" size="sm">Home</Badge>
+          ) : (
+            <Badge variant="outline" size="sm">Away</Badge>
+          )}
+        </div>
+      )
+    },
+    {
+      header: "PTS",
+      accessorKey: "projection.projected_points",
+      className: "text-right",
+      cell: (projection: ProjectionResponse) => (
+        projection.projection.projected_points.toFixed(1)
+      )
+    },
+    {
+      header: "REB",
+      accessorKey: "projection.projected_rebounds",
+      className: "text-right",
+      cell: (projection: ProjectionResponse) => (
+        projection.projection.projected_rebounds.toFixed(1)
+      )
+    },
+    {
+      header: "AST",
+      accessorKey: "projection.projected_assists",
+      className: "text-right",
+      cell: (projection: ProjectionResponse) => (
+        projection.projection.projected_assists.toFixed(1)
+      )
+    },
+    {
+      header: "Conf.",
+      accessorKey: "projection.confidence_score",
+      className: "text-right",
+      cell: (projection: ProjectionResponse) => (
+        <ConfidenceBadge score={projection.projection.confidence_score} />
+      )
+    }
+  ];
+
   return (
     <Card className="w-full">
       <CardHeader>
@@ -32,41 +117,13 @@ export function TodayProjections({ projections, isLoading, error }: TodayProject
         ) : error ? (
           <p className="text-destructive">Error loading projections: {error.message}</p>
         ) : projections && projections.length > 0 ? (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Player</TableHead>
-                <TableHead>Team</TableHead>
-                <TableHead>Opponent</TableHead>
-                <TableHead className="text-right">PTS</TableHead>
-                <TableHead className="text-right">REB</TableHead>
-                <TableHead className="text-right">AST</TableHead>
-                <TableHead className="text-right">Confidence</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {projections.map((projection) => (
-                <TableRow key={`${projection.player.id}-${projection.game.id}`}>
-                  <TableCell className="font-medium">{projection.player.full_name}</TableCell>
-                  <TableCell>{projection.player.team_id}</TableCell>
-                  <TableCell>
-                    {projection.opponent_team.abbreviation}
-                    {projection.home_team ? (
-                      <Badge variant="outline" className="ml-2">Home</Badge>
-                    ) : (
-                      <Badge variant="outline" className="ml-2">Away</Badge>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-right">{projection.projection.projected_points.toFixed(1)}</TableCell>
-                  <TableCell className="text-right">{projection.projection.projected_rebounds.toFixed(1)}</TableCell>
-                  <TableCell className="text-right">{projection.projection.projected_assists.toFixed(1)}</TableCell>
-                  <TableCell className="text-right">
-                    <ConfidenceBadge score={projection.projection.confidence_score} />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <ScrollableTable
+            data={projections}
+            columns={columns}
+            keyField={(projection) => `${projection.player.id}-${projection.game.id}`}
+            fixedColumnWidth="180px"
+            scrollableMinWidth="500px"
+          />
         ) : (
           <p className="text-center py-4 text-muted-foreground">No projections available for today</p>
         )}

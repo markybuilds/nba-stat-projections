@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, Suspense } from "react";
+import { useMemo, Suspense, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { TodayGames } from "@/components/dashboard/today-games";
 import { TodayProjections } from "@/components/dashboard/today-projections";
@@ -9,6 +9,10 @@ import { useRealTimeGames } from "@/lib/use-real-time-games";
 import { useRealTimeProjections } from "@/lib/use-real-time-projections";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { RefreshCw } from "lucide-react";
+import { PullToRefresh } from "@/components/ui/pull-to-refresh";
+import { useToast } from "@/components/ui/use-toast";
 import dynamic from "next/dynamic";
 
 // Dynamically import the chart components
@@ -38,11 +42,14 @@ export default function DashboardClient({
   initialProjections,
   initialErrors
 }: DashboardClientProps) {
+  const { toast } = useToast();
+  
   // Use real-time games hook
   const { 
     games, 
     lastUpdate: gamesLastUpdate,
-    isLive: gamesIsLive
+    isLive: gamesIsLive,
+    refreshGames
   } = useRealTimeGames({
     initialData: initialGames,
     date: new Date().toISOString().split('T')[0] // Today's date
@@ -52,7 +59,8 @@ export default function DashboardClient({
   const { 
     projections, 
     lastUpdate: projectionsLastUpdate,
-    isLive: projectionsIsLive 
+    isLive: projectionsIsLive,
+    refreshProjections
   } = useRealTimeProjections({
     initialData: initialProjections
   });
@@ -113,8 +121,43 @@ export default function DashboardClient({
     );
   }, [projections]);
 
+  // Handle refresh all data
+  const handleRefresh = useCallback(async () => {
+    // Refresh both games and projections
+    const gamesResult = await refreshGames();
+    const projectionsResult = await refreshProjections();
+    
+    // Show toast with status
+    if (gamesResult && projectionsResult) {
+      toast({
+        title: "Data Refreshed",
+        description: "Latest games and projections data loaded",
+        duration: 3000,
+      });
+    } else {
+      toast({
+        title: "Refresh Incomplete",
+        description: "There was an issue refreshing some data",
+        variant: "destructive", 
+        duration: 3000,
+      });
+    }
+  }, [refreshGames, refreshProjections, toast]);
+
   return (
-    <>
+    <PullToRefresh onRefresh={handleRefresh} className="h-full">
+      <div className="flex justify-end mb-4">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={handleRefresh}
+          className="gap-2"
+        >
+          <RefreshCw className="h-4 w-4" />
+          Refresh All Data
+        </Button>
+      </div>
+      
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
         <Card>
           <CardHeader className="pb-2">
@@ -225,6 +268,11 @@ export default function DashboardClient({
         isLoading={false} 
         error={initialErrors.projections} 
       />
-    </>
+      
+      {/* Mobile instructions for pull-to-refresh */}
+      <div className="md:hidden text-center text-xs text-muted-foreground pt-0 pb-4 mt-4">
+        Pull down to refresh all data
+      </div>
+    </PullToRefresh>
   );
 } 
