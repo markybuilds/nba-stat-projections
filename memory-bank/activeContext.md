@@ -1,14 +1,60 @@
 # Active Context
 
+## Current Focus: Database Optimization and Performance Improvements
+
+We're currently focused on optimizing the application for performance, with a particular emphasis on database operations, caching strategies, and frontend optimizations.
+
+### Frontend Optimizations
+- Implemented code splitting and lazy loading for large components
+- Created optimized image components for player avatars and team logos
+- Added proper cache headers for frontend assets
+
+### Backend Optimizations
+- Implemented database query caching with TTL (Time To Live)
+- Added connection pooling to reduce connection overhead
+- Created performance monitoring for database queries
+- Implemented materialized views for commonly accessed data
+- Added database indexes for frequently queried columns
+
+### Recent Work Completed
+1. Created a comprehensive caching utility system:
+   - Implemented cache-utils.ts for cache tag management
+   - Added route-handlers.ts for standardized API route responses with cache headers
+   - Created example API routes using different caching strategies (static, dynamic, real-time)
+
+2. Implemented database optimizations:
+   - Created SQL scripts for adding indexes and materialized views
+   - Built a query caching system with configurable TTL
+   - Implemented performance monitoring for database queries
+   - Created an optimized repository that leverages all optimizations
+   - Set up automated refresh of materialized views using scheduler
+
+3. Improved image loading with specialized components:
+   - Created `PlayerAvatar` component for optimized player images
+   - Implemented `TeamLogo` component for efficient team logo display
+   - Updated UI components to use these optimized image components
+
+### Current Tasks in Progress
+- Setting up monitoring dashboards to track performance metrics
+- Preparing for production deployment with final performance tuning
+- Documenting performance optimization approaches for the team
+
+### Next Steps
+- Complete the frontend data fetching optimizations (SWR)
+- Set up a CDN for static assets
+- Implement server-side rendering for key pages
+- Create automated performance testing framework
+
 ## Current Focus
 
 - **Frontend Enhancement**: Enhancing the Next.js frontend with advanced features including data visualization, player comparison functionality, and dashboard metrics.
 - **Deployment Capabilities**: Adding deployment pipeline and preparing for production release.
-- **Performance Optimization**: Improving application performance and implementing real-time updates.
+- **Performance Optimization**: Improving application performance through code splitting, image optimization, caching, and database optimization.
 - **Real-time Data Updates**: Added WebSocket functionality to provide real-time projection updates to users. Both backend and frontend implementation are now complete.
 - **Data Automation**: Implemented scheduler service for automated data updates using APScheduler, created CLI tool for administration, and updated Kubernetes configuration.
 - **Monitoring and Alerting**: Added comprehensive monitoring with Prometheus metrics and an alerting system with multiple notification channels.
 - **Codebase Organization**: Reorganized the project structure to eliminate duplicate directories and ensure a clear, consistent structure.
+- **Database Optimization**: Improving database query performance through analysis, indexing, and query optimization to enhance API response times.
 
 ## Recent Changes
 
@@ -128,25 +174,6 @@
 - Should we implement PagerDuty or similar service for on-call alerting?
 - What is the optimal strategy for handling stale metrics in Prometheus?
 
-## Next Steps
-
-- ✅ Create basic pages and layouts
-- ✅ Implement API client for backend communication
-- ✅ Create player and game listings
-- ✅ Add projection data tables
-- ✅ Implement filtering and pagination
-- ✅ Create player comparison feature
-- ✅ Enhance dashboard with data visualization
-- ✅ Setup deployment pipeline
-- ✅ Implement real-time data updates (backend and frontend complete)
-- ✅ Implement data import automation with scheduler
-- ✅ Add monitoring and alerting for system health
-- ✅ Reorganize codebase for clarity and consistency
-- ⏳ Add authentication for admin users
-- ⏳ Optimize performance for production
-- ⏳ Set up Grafana dashboards for metrics visualization
-- ⏳ Create alerting dashboard UI
-
 ## Active Tasks
 
 - ✅ Implementing WebSocket server for real-time updates
@@ -155,7 +182,54 @@
 - ✅ Implementing data import automation with scheduler
 - ✅ Adding monitoring and alerting capabilities
 - ✅ Reorganizing codebase to eliminate duplication
-- ⏳ Optimizing bundle size for production deployment
+- 🔄 Optimizing performance for production deployment
+  - ✅ Analyzing frontend bundle size with Next.js bundle analyzer
+    - Identified large packages: recharts, date-fns, and lucide-react contribute significantly to bundle size
+    - Found several unused imports that can be removed
+    - Detected multiple opportunities for code splitting in the application
+  - ✅ Implementing code splitting and lazy loading for large components
+    - ✅ Added dynamic imports for data visualization components in dashboard
+    - ✅ Implemented lazy loading for the player comparison feature
+    - ✅ Successfully reduced initial bundle size by moving chart components and comparison features into separate chunks
+  - ✅ Optimizing image loading and processing
+    - ✅ Created PlayerAvatar component using Next.js Image for optimized player images
+    - ✅ Implemented TeamLogo component for team logo display
+    - ✅ Integrated optimized components throughout the application
+      - ✅ Updated player detail page
+      - ✅ Enhanced players list with avatars and team logos
+      - ✅ Updated projections list with player avatars and team logos
+      - ✅ Added team logos to games list
+    - ✅ Added fallback mechanisms for missing images
+    - ✅ Added proper image sizing with responsive variants
+  - ✅ Implementing server-side caching strategies
+    - ✅ Analyzing API routes for caching opportunities
+    - ✅ Implementing cache headers for static and semi-static data
+    - ✅ Setting up incremental static regeneration for appropriate pages
+      - ✅ Updated About, Privacy, and Terms pages with static generation
+      - ✅ Configured metadata for SEO optimization
+    - ✅ Adding cache control headers to API responses
+    - ✅ Configuring Next.js cache settings
+    - ✅ Created comprehensive cache utility system
+      - ✅ Implemented cache-utils.ts with standardized cache tag management
+      - ✅ Created route-handlers.ts for standardized API route responses with cache headers
+      - ✅ Developed different cache presets for static, semi-static, and dynamic content
+      - ✅ Updated API utility to use cache constants
+      - ✅ Created example API routes using the new utilities
+  - ✅ Adding client-side data caching with SWR
+    - ✅ Created SWR configuration with different cache presets
+    - ✅ Implemented SWR provider for global configuration
+    - ✅ Developed custom hooks for teams, players, games, and projections data
+    - ✅ Added optimistic updates utility for real-time data modifications
+    - ✅ Created example components demonstrating SWR usage
+    - ✅ Implemented retry and error handling mechanisms
+    - ✅ Configured automatic revalidation for real-time data
+  - 🔄 Optimizing database queries for faster response times
+    - 🔄 Analyzing current database query performance
+    - ⏳ Adding indexes to frequently queried columns
+    - ⏳ Optimizing JOIN operations in complex queries
+    - ⏳ Implementing query caching for repetitive requests
+    - ⏳ Adding database connection pooling configuration
+  - ⏳ Implementing CDN for static assets
 - ⏳ Implementing user preferences for dashboard customization
 - ⏳ Refining Kubernetes configurations for different environments
 - ⏳ Creating a staging environment for testing deployments

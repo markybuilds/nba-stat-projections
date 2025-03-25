@@ -2,6 +2,19 @@ import React from "react";
 import Layout from "@/components/layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Metadata } from "next";
+
+// Generate static page at build time
+export const dynamic = 'force-static';
+
+// Set a long revalidation time since this content rarely changes
+export const revalidate = 604800; // 1 week in seconds
+
+// Add metadata for SEO
+export const metadata: Metadata = {
+  title: 'Terms of Service | NBA Stat Projections',
+  description: 'Terms of service for NBA Stat Projections, outlining the rules and guidelines for using our platform.',
+};
 
 export default function TermsPage() {
   return (

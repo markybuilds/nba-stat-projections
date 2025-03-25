@@ -2,6 +2,19 @@ import React from "react";
 import Layout from "@/components/layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Metadata } from "next";
+
+// Generate static page at build time
+export const dynamic = 'force-static';
+
+// Set a long revalidation time since this content rarely changes
+export const revalidate = 604800; // 1 week in seconds
+
+// Add metadata for SEO
+export const metadata: Metadata = {
+  title: 'Privacy Policy | NBA Stat Projections',
+  description: 'Privacy policy for NBA Stat Projections, detailing how we collect, use, and protect your personal information.',
+};
 
 export default function PrivacyPage() {
   return (

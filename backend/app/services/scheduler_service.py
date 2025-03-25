@@ -51,6 +51,10 @@ class SchedulerService:
             # Schedule health check job if not already scheduled
             if "health_check" not in self.jobs:
                 self.schedule_health_check()
+                
+            # Schedule database optimization jobs
+            if "refresh_materialized_views" not in self.jobs:
+                self.schedule_materialized_view_refresh()
     
     def shutdown(self):
         """Shutdown the scheduler."""
@@ -115,6 +119,47 @@ class SchedulerService:
         metrics_service.update_scheduler_next_run("health_check", job.next_run_time)
         
         return job
+    
+    def schedule_materialized_view_refresh(self, interval_minutes: int = 15):
+        """
+        Schedule the materialized view refresh job.
+        
+        Args:
+            interval_minutes: Interval in minutes between refreshes (default: 15)
+        """
+        # Import here to avoid circular imports
+        from app.core.scheduler import refresh_materialized_views
+        
+        # Schedule the job to run every interval_minutes
+        interval_job = self.scheduler.add_job(
+            self._wrap_job(refresh_materialized_views, "refresh_materialized_views"),
+            trigger=IntervalTrigger(minutes=interval_minutes),
+            id="refresh_materialized_views",
+            name="Refresh Materialized Views",
+            replace_existing=True
+        )
+        
+        # Also schedule at specific times before games typically start
+        cron_job = self.scheduler.add_job(
+            self._wrap_job(refresh_materialized_views, "refresh_views_fixed_times"),
+            trigger=CronTrigger(hour='6,12,17,21', minute=0),
+            id="refresh_views_fixed_times",
+            name="Refresh Views Before Games",
+            replace_existing=True
+        )
+        
+        self.jobs["refresh_materialized_views"] = interval_job
+        self.jobs["refresh_views_fixed_times"] = cron_job
+        
+        logger.info(f"Scheduled materialized view refresh to run every {interval_minutes} minutes")
+        logger.info("Scheduled additional view refreshes at 6 AM, 12 PM, 5 PM, and 9 PM")
+        
+        # Update metrics
+        from app.services.metrics_service import metrics_service
+        metrics_service.update_scheduler_next_run("refresh_materialized_views", interval_job.next_run_time)
+        metrics_service.update_scheduler_next_run("refresh_views_fixed_times", cron_job.next_run_time)
+        
+        return interval_job
     
     def schedule_custom_job(self, 
                             func: Callable, 

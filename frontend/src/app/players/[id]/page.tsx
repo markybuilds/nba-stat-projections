@@ -9,6 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PerformanceChart } from '@/components/player/performance-chart';
+import { PlayerAvatar } from '@/components/ui/player-avatar';
+import { TeamLogo } from '@/components/ui/team-logo';
 
 export default function PlayerDetails() {
   const { id } = useParams();
@@ -101,10 +103,28 @@ export default function PlayerDetails() {
     <Layout>
       <div className="container mx-auto px-4 py-8">
         {/* Player Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold">{player.first_name} {player.last_name}</h1>
-          <div className="text-muted-foreground">
-            #{player.jersey_number} | {player.position || 'N/A'} | {player.team?.full_name || 'Team N/A'}
+        <div className="flex items-center gap-6 mb-8">
+          <PlayerAvatar 
+            playerId={player.id} 
+            playerName={`${player.first_name} ${player.last_name}`}
+            teamId={player.team_id}
+            size="xl"
+          />
+          
+          <div>
+            <h1 className="text-3xl font-bold flex items-center gap-3">
+              {player.first_name} {player.last_name}
+              {player.team_id && (
+                <TeamLogo 
+                  teamId={player.team_id} 
+                  size="md" 
+                  className="ml-2" 
+                />
+              )}
+            </h1>
+            <div className="text-muted-foreground">
+              #{player.jersey_number} | {player.position || 'N/A'} | {player.team?.full_name || 'Team N/A'}
+            </div>
           </div>
         </div>
         
@@ -181,7 +201,11 @@ export default function PlayerDetails() {
                   {projections.map((proj) => (
                     <TableRow key={`${proj.player.id}-${proj.game.id}`}>
                       <TableCell>{formatDate(proj.game.game_date)}</TableCell>
-                      <TableCell>
+                      <TableCell className="flex items-center gap-2">
+                        <TeamLogo 
+                          teamId={proj.opponent.id} 
+                          size="sm" 
+                        />
                         {proj.is_home ? 
                           `vs ${proj.opponent.abbreviation}` : 
                           `@ ${proj.opponent.abbreviation}`}

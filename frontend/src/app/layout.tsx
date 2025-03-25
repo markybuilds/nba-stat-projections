@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { WebSocketProvider } from "@/components/websocket-provider";
+import { SWRProvider } from "@/components/swr-provider";
 import { Toaster } from "@/components/ui/toaster";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -24,8 +25,10 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <WebSocketProvider>
-          {children}
-          <Toaster />
+          <SWRProvider>
+            {children}
+            <Toaster />
+          </SWRProvider>
         </WebSocketProvider>
       </body>
     </html>

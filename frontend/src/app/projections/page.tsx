@@ -11,6 +11,8 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrig
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import Link from "next/link";
 import { ProjectionResponse } from "@/types";
+import { PlayerAvatar } from "@/components/ui/player-avatar";
+import { TeamLogo } from "@/components/ui/team-logo";
 
 export default function ProjectionsPage() {
   const [projections, setProjections] = useState<ProjectionResponse[]>([]);
@@ -186,24 +188,39 @@ export default function ProjectionsPage() {
                           <TableCell>
                             <Link 
                               href={`/players/${projection.player.id}`}
-                              className="font-medium hover:underline"
+                              className="font-medium hover:underline flex items-center gap-2"
                             >
-                              {projection.player.full_name}
+                              <PlayerAvatar 
+                                playerId={projection.player.id}
+                                playerName={projection.player.full_name}
+                                teamId={projection.player.team_id}
+                                size="sm"
+                                showTeamColor
+                              />
+                              <span>{projection.player.full_name}</span>
                             </Link>
                           </TableCell>
-                          <TableCell>
-                            {projection.player.team?.abbreviation || projection.player.team_id}
+                          <TableCell className="flex items-center gap-2">
+                            <TeamLogo 
+                              teamId={projection.player.team_id} 
+                              size="xs" 
+                            />
+                            <span>{projection.player.team?.abbreviation || projection.player.team_id}</span>
                           </TableCell>
                           <TableCell>
                             <Link
                               href={`/games/${projection.game.id}`}
-                              className="hover:underline flex items-center"
+                              className="hover:underline flex items-center gap-2"
                             >
-                              {projection.opponent_team.abbreviation}
+                              <TeamLogo 
+                                teamId={projection.opponent_team.id} 
+                                size="xs" 
+                              />
+                              <span>{projection.opponent_team.abbreviation}</span>
                               {projection.home_team ? (
-                                <Badge variant="outline" className="ml-2">vs</Badge>
+                                <Badge variant="outline">vs</Badge>
                               ) : (
-                                <Badge variant="outline" className="ml-2">@</Badge>
+                                <Badge variant="outline">@</Badge>
                               )}
                             </Link>
                           </TableCell>

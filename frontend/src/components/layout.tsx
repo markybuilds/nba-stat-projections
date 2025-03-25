@@ -10,7 +10,7 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 
-export default function Layout({ children }: LayoutProps) {
+function Layout({ children }: LayoutProps) {
   return (
     <WebSocketProvider>
       <div className="flex min-h-screen flex-col">
@@ -23,4 +23,7 @@ export default function Layout({ children }: LayoutProps) {
       </div>
     </WebSocketProvider>
   );
-} 
+}
+
+export { Layout };
+export default Layout; 

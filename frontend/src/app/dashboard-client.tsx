@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useMemo, Suspense } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { TodayGames } from "@/components/dashboard/today-games";
 import { TodayProjections } from "@/components/dashboard/today-projections";
 import { Game, ProjectionResponse } from "@/types";
@@ -10,6 +9,20 @@ import { useRealTimeGames } from "@/lib/use-real-time-games";
 import { useRealTimeProjections } from "@/lib/use-real-time-projections";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
+import dynamic from "next/dynamic";
+
+// Dynamically import the chart components
+const PositionChart = dynamic(
+  () => import("@/components/dashboard/position-chart").then(mod => mod.PositionChart),
+  {
+    loading: () => (
+      <div className="h-64 w-full flex items-center justify-center">
+        <div className="animate-pulse h-full w-full bg-gray-200 rounded" />
+      </div>
+    ),
+    ssr: false
+  }
+);
 
 interface DashboardClientProps {
   initialGames: Game[];
@@ -187,16 +200,13 @@ export default function DashboardClient({
             <CardDescription>Comparing projections across player positions</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={playerStats} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="points" fill="#8884d8" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+            <Suspense fallback={
+              <div className="h-64 w-full flex items-center justify-center">
+                <div className="animate-pulse h-full w-full bg-gray-200 rounded" />
+              </div>
+            }>
+              <PositionChart data={playerStats} />
+            </Suspense>
           </CardContent>
         </Card>
       )}

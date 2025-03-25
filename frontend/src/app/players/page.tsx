@@ -6,6 +6,20 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import { PlayerAvatar } from "@/components/ui/player-avatar";
+import { TeamLogo } from "@/components/ui/team-logo";
+
+// Generate static params for this page with revalidation every 12 hours (43200 seconds)
+export const revalidate = 43200;
+
+// Force static generation for this page at build time
+export const dynamic = 'force-static';
+
+// Add metadata for this page
+export const metadata = {
+  title: 'NBA Players | NBA Stat Projections',
+  description: 'Complete roster of active NBA players with team affiliations and positions.'
+};
 
 export default async function PlayersPage() {
   // In a real application, we would implement client-side filtering and pagination
@@ -36,7 +50,7 @@ export default async function PlayersPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
+                  <TableHead>Player</TableHead>
                   <TableHead>Team</TableHead>
                   <TableHead>Position</TableHead>
                   <TableHead className="text-right">Jersey #</TableHead>
@@ -48,13 +62,21 @@ export default async function PlayersPage() {
                     <TableCell>
                       <Link 
                         href={`/players/${player.id}`}
-                        className="font-medium hover:underline"
+                        className="font-medium hover:underline flex items-center gap-2"
                       >
-                        {player.full_name}
+                        <PlayerAvatar 
+                          playerId={player.id}
+                          playerName={player.full_name}
+                          teamId={player.team_id}
+                          size="sm"
+                          showTeamColor
+                        />
+                        <span>{player.full_name}</span>
                       </Link>
                     </TableCell>
-                    <TableCell>
-                      {player.team ? player.team.abbreviation : player.team_id}
+                    <TableCell className="flex items-center gap-2">
+                      <TeamLogo teamId={player.team_id} size="xs" />
+                      <span>{player.team ? player.team.abbreviation : player.team_id}</span>
                     </TableCell>
                     <TableCell>
                       {player.position && (
